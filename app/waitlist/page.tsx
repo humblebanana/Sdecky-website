@@ -47,9 +47,9 @@ export default function WaitlistPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation Bar */}
-      <nav className="fixed top-0 w-full bg-white border-b border-[#E0E0E0] z-50">
+      <nav className="w-full bg-white border-b border-[#E0E0E0]">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between h-20 md:h-24">
+          <div className="flex items-center justify-between h-16 md:h-18">
             {/* Logo Section */}
             <Link href="/" className="flex flex-col">
               <span className="text-2xl md:text-2xl font-serif font-bold text-[#051C2C]">
@@ -85,7 +85,7 @@ export default function WaitlistPage() {
       </nav>
 
       {/* Page Content */}
-      <div className="pt-20 md:pt-24">
+      <div>
         {/* Hero Section */}
         <section className="w-full py-16 md:py-24 bg-[#051C2C]">
           <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">

@@ -6,10 +6,10 @@ import { MobileNav } from "@/components/mobile-nav";
 export default function Home() {
   return (
     <main className="min-h-screen">
-      {/* Fixed Navigation Bar - QuantumBlack/McKinsey Style with Mobile Support */}
-      <nav className="fixed top-0 w-full bg-white border-b border-[#E0E0E0] z-50">
+      {/* Navigation Bar - QuantumBlack/McKinsey Style with Mobile Support */}
+      <nav className="w-full bg-white border-b border-[#E0E0E0]">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between h-20 md:h-24">
+          <div className="flex items-center justify-between h-16 md:h-18">
             {/* Logo Section */}
             <Link href="/" className="flex flex-col">
               <span className="text-2xl md:text-2xl font-serif font-bold text-[#051C2C]">
