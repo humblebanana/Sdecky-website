@@ -90,7 +90,7 @@ export default function GalleryPage() {
           <div className="flex items-center justify-between h-20 md:h-24">
             {/* Logo Section */}
             <Link href="/" className="flex flex-col">
-              <span className="text-2xl md:text-4xl font-serif font-bold text-[#051C2C]">
+              <span className="text-2xl md:text-2xl font-serif font-bold text-[#051C2C]">
                 Sdecky
               </span>
             </Link>
