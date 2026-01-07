@@ -70,7 +70,7 @@ export default function GalleryPage() {
       {/* Navigation Bar */}
       <nav className="w-full bg-white border-b border-[#E0E0E0]">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between h-16 md:h-18">
+          <div className="flex items-center justify-between h-18 md:h-20">
             {/* Logo Section */}
             <Link href="/" className="flex flex-col">
               <span className="text-2xl md:text-2xl font-serif font-bold text-[#051C2C]">
@@ -218,6 +218,23 @@ export default function GalleryPage() {
           isFree={selectedPresentation.is_free ?? false}
         />
       )}
+
+      {/* Footer */}
+      <footer className="w-full border-t border-[#F0F0F0] py-12 bg-white">
+        <div className="container mx-auto px-4 md:px-8 text-center text-sm text-[#5A6780]">
+          <p>&copy; 2025 Sdecky AI. Palo Alto, California.</p>
+          <p className="mt-2">
+            Contact:{" "}
+            <a
+              href="mailto:humbleguava@gmail.com"
+              className="text-[#2251FF] hover:text-[#051C2C] transition-colors"
+            >
+              humbleguava@gmail.com
+            </a>
+          </p>
+          <p className="mt-2">All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
