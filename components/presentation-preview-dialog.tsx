@@ -40,12 +40,12 @@ export function PresentationPreviewDialog({
         // Dynamically import pdfjs-dist only on client side
         const pdfjsLib = await import("pdfjs-dist");
 
-        // Set worker source - use CDN for production reliability
-        // Local path doesn't work reliably in all deployment platforms
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+        // Set worker source - use jsDelivr CDN (China-friendly, global CDN)
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
         console.log('[Preview] Loading PDF:', pdfUrl);
         console.log('[Preview] PDF.js version:', pdfjsLib.version);
+        console.log('[Preview] Worker URL:', pdfjsLib.GlobalWorkerOptions.workerSrc);
 
         // Fetch PDF as ArrayBuffer to handle CORS for Supabase Storage
         const response = await fetch(pdfUrl);

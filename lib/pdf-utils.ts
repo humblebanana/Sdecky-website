@@ -19,8 +19,8 @@ export async function generateThumbnailFromPDF(
   // Dynamically import pdfjs-dist
   const pdfjsLib = await import('pdfjs-dist');
 
-  // Set worker source - use CDN for production reliability
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+  // Set worker source - use jsDelivr CDN (China-friendly, global CDN)
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
   // Read file as ArrayBuffer
   const arrayBuffer = await file.arrayBuffer();
@@ -76,7 +76,7 @@ export async function generateThumbnailFromPDF(
 export async function getPDFPageCount(file: File): Promise<number> {
   const pdfjsLib = await import('pdfjs-dist');
 
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
@@ -95,7 +95,7 @@ export async function isValidPDF(file: File): Promise<boolean> {
   try {
     const pdfjsLib = await import('pdfjs-dist');
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
     const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
