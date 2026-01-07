@@ -10,15 +10,17 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+          "bg-[#051C2C] text-white shadow hover:bg-[#051C2C]/90",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+          "border-2 border-[#051C2C] text-[#051C2C] bg-background shadow-sm hover:bg-[#051C2C] hover:text-white",
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        ghost: "text-[#051C2C] hover:bg-accent hover:text-accent-foreground",
+        link: "text-[#2251FF] underline-offset-4 hover:underline",
+        // McKinsey white border button (for dark backgrounds)
+        "mckinsey-light": "border-2 border-white text-white bg-transparent hover:bg-white hover:text-[#051C2C]",
       },
       size: {
         default: "h-9 px-4 py-2",
