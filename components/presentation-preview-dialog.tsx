@@ -103,7 +103,7 @@ export function PresentationPreviewDialog({
       />
 
       {/* Dialog */}
-      <div className="relative bg-white rounded-lg shadow-2xl w-[95vw] h-[95vh] max-w-7xl flex flex-col">
+      <div className="relative bg-white rounded-lg shadow-2xl w-[80vw] h-[80vh] max-w-7xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E0E0E0]">
           <h2 className="text-xl md:text-2xl font-serif text-[#051C2C]">
