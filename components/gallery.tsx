@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { PresentationPreviewDialog } from "./presentation-preview-dialog";
 
 interface Presentation {
   id: string;
@@ -30,6 +31,9 @@ const INITIAL_ITEMS: Presentation[] = [
 export function Gallery() {
   const [items, setItems] = useState<Presentation[]>(INITIAL_ITEMS);
   const [loading, setLoading] = useState(true);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedPresentation, setSelectedPresentation] =
+    useState<Presentation | null>(null);
 
   useEffect(() => {
     async function fetchPresentations() {
@@ -76,15 +80,19 @@ export function Gallery() {
           {items.slice(0, 4).map((item) => (
             <article
               key={item.id}
-              className="group bg-white rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500"
+              onClick={() => {
+  setSelectedPresentation(item);
+  setPreviewOpen(true);
+}}
+className="group bg-white rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 cursor-pointer"
             >
               {/* Thumbnail */}
-              <div className="aspect-[16/10] relative bg-[#F0F0F0] overflow-hidden">
+              <div className="aspect-[16/9] relative bg-[#F0F0F0] overflow-hidden">
                 {item.thumbnail_url ? (
                   <img
                     src={item.thumbnail_url}
                     alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
@@ -104,21 +112,10 @@ export function Gallery() {
 
                 {/* Action Links - Touch Optimized */}
                 <div className="flex gap-4 md:gap-6 pt-2 md:pt-4">
-                  <a
-                    href={item.pdf_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#2251FF] hover:text-[#051C2C] active:text-[#051C2C] transition-colors text-sm font-medium py-2"
-                  >
-                    View presentation →
-                  </a>
-                  <a
-                    href={item.pdf_url}
-                    download
-                    className="text-[#5A6780] hover:text-[#051C2C] active:text-[#051C2C] transition-colors text-sm py-2"
-                  >
-                    Download
-                  </a>
+<span className="text-[#2251FF] group-hover:text-[#051C2C] transition-colors text-sm font-medium py-2 flex items-center gap-1">
+  View presentation
+  <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
+</span>
                 </div>
               </div>
             </article>
@@ -135,6 +132,19 @@ export function Gallery() {
           </a>
         </div>
       </div>
+
+      {/* Presentation Preview Dialog */}
+      {selectedPresentation && (
+        <PresentationPreviewDialog
+          isOpen={previewOpen}
+          onClose={() => {
+            setPreviewOpen(false);
+            setSelectedPresentation(null);
+          }}
+          title={selectedPresentation.title}
+          pdfUrl={selectedPresentation.pdf_url}
+        />
+      )}
     </section>
   );
 }

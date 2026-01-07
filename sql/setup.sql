@@ -14,9 +14,33 @@ CREATE TABLE IF NOT EXISTS presentations (
   pdf_storage_path TEXT NOT NULL,
   thumbnail_storage_path TEXT,
   file_size_bytes BIGINT,
+  language TEXT DEFAULT 'en',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add language column if it doesn't exist (for existing databases)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'presentations' AND column_name = 'language'
+  ) THEN
+    ALTER TABLE presentations ADD COLUMN language TEXT DEFAULT 'en';
+  END IF;
+END $$;
+
+-- Add is_free column if it doesn't exist (for existing databases)
+-- true = show all pages, false = show only half pages
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'presentations' AND column_name = 'is_free'
+  ) THEN
+    ALTER TABLE presentations ADD COLUMN is_free BOOLEAN DEFAULT false;
+  END IF;
+END $$;
 
 -- Add updated_at trigger
 CREATE OR REPLACE FUNCTION update_updated_at_column()

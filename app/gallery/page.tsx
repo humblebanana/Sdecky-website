@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { MobileNav } from "@/components/mobile-nav";
+import { PresentationPreviewDialog } from "@/components/presentation-preview-dialog";
 
 interface Presentation {
   id: string;
@@ -43,6 +44,9 @@ export default function GalleryPage() {
   const [items, setItems] = useState<Presentation[]>(INITIAL_ITEMS);
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState("all");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedPresentation, setSelectedPresentation] =
+    useState<Presentation | null>(null);
 
   useEffect(() => {
     async function fetchPresentations() {
@@ -196,21 +200,15 @@ export default function GalleryPage() {
 
                       {/* Action Links */}
                       <div className="flex gap-4 pt-2">
-                        <a
-                          href={item.pdf_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => {
+                            setSelectedPresentation(item);
+                            setPreviewOpen(true);
+                          }}
                           className="text-[#2251FF] hover:text-[#051C2C] transition-colors text-sm font-medium"
                         >
                           View →
-                        </a>
-                        <a
-                          href={item.pdf_url}
-                          download
-                          className="text-[#5A6780] hover:text-[#051C2C] transition-colors text-sm"
-                        >
-                          Download
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </article>
@@ -220,6 +218,19 @@ export default function GalleryPage() {
           </div>
         </section>
       </div>
+
+      {/* Presentation Preview Dialog */}
+      {selectedPresentation && (
+        <PresentationPreviewDialog
+          isOpen={previewOpen}
+          onClose={() => {
+            setPreviewOpen(false);
+            setSelectedPresentation(null);
+          }}
+          title={selectedPresentation.title}
+          pdfUrl={selectedPresentation.pdf_url}
+        />
+      )}
     </div>
   );
 }

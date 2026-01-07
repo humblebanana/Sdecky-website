@@ -55,7 +55,8 @@ export default function Home() {
       {/* Footer */}
       <footer className="w-full border-t border-[#F0F0F0] py-12 bg-white">
         <div className="container mx-auto px-4 md:px-8 text-center text-sm text-[#5A6780]">
-          <p>&copy; 2025 Sdecky. All rights reserved.</p>
+          <p>&copy; 2025 Sdecky AI. Palo Alto, California.</p>
+          <p className="mt-2">All rights reserved.</p>
         </div>
       </footer>
     </main>

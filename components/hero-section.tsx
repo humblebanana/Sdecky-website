@@ -1,6 +1,16 @@
+"use client";
+
 import Image from "next/image";
+import { ChevronDown } from "lucide-react";
 
 export function Hero() {
+  const scrollToGallery = () => {
+    const gallerySection = document.getElementById("gallery");
+    if (gallerySection) {
+      gallerySection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section className="relative w-full h-screen flex items-center justify-center text-center overflow-hidden">
       {/* Background Image with Dark Overlay */}
@@ -45,6 +55,15 @@ export function Hero() {
           </a>
         </div>
       </div>
+
+      {/* Scroll Down CTA */}
+      <button
+        onClick={scrollToGallery}
+        className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/80 hover:text-white transition-colors group"
+        aria-label="Scroll to gallery"
+      >
+        <ChevronDown className="w-6 h-6 md:w-8 md:h-8 animate-bounce" />
+      </button>
     </section>
   );
 }

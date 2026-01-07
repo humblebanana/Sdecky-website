@@ -19,9 +19,10 @@ export function PresentationUploadForm() {
   const router = useRouter();
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [autoExtract, setAutoExtract] = useState(false);
+  const [autoExtract, setAutoExtract] = useState(true);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [language, setLanguage] = useState("en");
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +99,7 @@ export function PresentationUploadForm() {
         pdf_storage_path: pdfResult.storagePath,
         thumbnail_storage_path: thumbnailResult.storagePath,
         file_size_bytes: pdfFile.size,
+        language: language,
       });
 
       if (dbError) {
@@ -112,7 +114,8 @@ export function PresentationUploadForm() {
       setThumbnailFile(null);
       setTitle("");
       setDescription("");
-      setAutoExtract(false);
+      setLanguage("en");
+      setAutoExtract(true);
 
       // Redirect to dashboard after short delay
       setTimeout(() => {
@@ -193,6 +196,27 @@ export function PresentationUploadForm() {
               rows={3}
               disabled={uploading}
             />
+          </div>
+
+          {/* Language */}
+          <div className="space-y-2">
+            <Label htmlFor="language">Language *</Label>
+            <select
+              id="language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              disabled={uploading}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="en">English</option>
+              <option value="zh">中文 (Chinese)</option>
+              <option value="ja">日本語 (Japanese)</option>
+              <option value="ko">한국어 (Korean)</option>
+              <option value="es">Español (Spanish)</option>
+              <option value="fr">Français (French)</option>
+              <option value="de">Deutsch (German)</option>
+              <option value="pt">Português (Portuguese)</option>
+            </select>
           </div>
 
           {/* Progress Bar */}
