@@ -23,6 +23,7 @@ export function PresentationUploadForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [language, setLanguage] = useState("en");
+  const [isFree, setIsFree] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +101,7 @@ export function PresentationUploadForm() {
         thumbnail_storage_path: thumbnailResult.storagePath,
         file_size_bytes: pdfFile.size,
         language: language,
+        is_free: isFree,
       });
 
       if (dbError) {
@@ -115,6 +117,7 @@ export function PresentationUploadForm() {
       setTitle("");
       setDescription("");
       setLanguage("en");
+      setIsFree(false);
       setAutoExtract(true);
 
       // Redirect to dashboard after short delay
@@ -217,6 +220,24 @@ export function PresentationUploadForm() {
               <option value="de">Deutsch (German)</option>
               <option value="pt">Português (Portuguese)</option>
             </select>
+          </div>
+
+          {/* Is Free */}
+          <div className="space-y-2">
+            <Label htmlFor="is_free">Access Type *</Label>
+            <select
+              id="is_free"
+              value={isFree ? "free" : "not_free"}
+              onChange={(e) => setIsFree(e.target.value === "free")}
+              disabled={uploading}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="not_free">Not Free (Show 50% pages)</option>
+              <option value="free">Free (Show all pages)</option>
+            </select>
+            <p className="text-xs text-muted-foreground">
+              Free presentations show all pages. Not Free presentations show only half the pages in preview.
+            </p>
           </div>
 
           {/* Progress Bar */}

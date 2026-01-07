@@ -8,6 +8,7 @@ interface PresentationPreviewDialogProps {
   onClose: () => void;
   title: string;
   pdfUrl: string;
+  isFree: boolean;
   onDownload?: () => void;
 }
 
@@ -16,38 +17,61 @@ export function PresentationPreviewDialog({
   onClose,
   title,
   pdfUrl,
+  isFree,
   onDownload,
 }: PresentationPreviewDialogProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [pageImages, setPageImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen || !pdfUrl) return;
 
+    let isCancelled = false;
+
     const loadPDF = async () => {
       setLoading(true);
       setPageImages([]);
+      setCurrentPage(0);
+      setError(null);
+
       try {
         // Dynamically import pdfjs-dist only on client side
         const pdfjsLib = await import("pdfjs-dist");
 
-        // Set worker source to local file
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+        // Set worker source - use absolute URL for production compatibility
+        const workerUrl = new URL('/pdf.worker.min.mjs', window.location.origin).href;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+
+        console.log('[Preview] Loading PDF:', pdfUrl);
+        console.log('[Preview] Worker URL:', workerUrl);
 
         // Fetch PDF as ArrayBuffer to handle CORS for Supabase Storage
         const response = await fetch(pdfUrl);
         if (!response.ok) {
-          throw new Error(`Failed to fetch PDF: ${response.status}`);
+          console.error('[Preview] Fetch failed:', response.status, response.statusText);
+          throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
         }
         const arrayBuffer = await response.arrayBuffer();
+        console.log('[Preview] PDF fetched, size:', arrayBuffer.byteLength);
+
+        if (isCancelled) return;
 
         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
         const numPages = pdf.numPages;
+        console.log('[Preview] PDF loaded, pages:', numPages);
+
+        // Determine how many pages to show based on is_free
+        const pagesToRender = isFree ? numPages : Math.ceil(numPages / 2);
+
+        const renderedImages: string[] = [];
 
         // Render pages progressively - show first page immediately
-        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        for (let pageNum = 1; pageNum <= pagesToRender; pageNum++) {
+          if (isCancelled) return;
+
           const page = await pdf.getPage(pageNum);
           const viewport = page.getViewport({ scale: 1.5 }); // Reduced scale for faster loading
           const canvas = document.createElement("canvas");
@@ -66,23 +90,34 @@ export function PresentationPreviewDialog({
 
           const imageData = canvas.toDataURL("image/jpeg", 0.85); // JPEG with compression
 
+          if (isCancelled) return;
+
+          renderedImages.push(imageData);
+
           // Update state progressively
-          setPageImages((prev) => [...prev, imageData]);
+          setPageImages([...renderedImages]);
 
           // Show first page immediately
           if (pageNum === 1) {
             setLoading(false);
-            setCurrentPage(0);
           }
         }
       } catch (error) {
         console.error("Error loading PDF:", error);
-        setLoading(false);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        if (!isCancelled) {
+          setError(errorMessage);
+          setLoading(false);
+        }
       }
     };
 
     loadPDF();
-  }, [isOpen, pdfUrl]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isOpen, pdfUrl, isFree]);
 
   if (!isOpen) return null;
 
@@ -103,7 +138,7 @@ export function PresentationPreviewDialog({
       />
 
       {/* Dialog */}
-      <div className="relative bg-white rounded-lg shadow-2xl w-[80vw] h-[80vh] max-w-7xl flex flex-col">
+      <div className="relative bg-white rounded-lg shadow-2xl w-[64vw] h-[64vh] max-w-6xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E0E0E0]">
           <h2 className="text-xl md:text-2xl font-serif text-[#051C2C]">
@@ -155,8 +190,16 @@ export function PresentationPreviewDialog({
               )}
             </>
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-[#5A6780]">Failed to load presentation</p>
+            <div className="flex flex-col items-center justify-center h-full gap-4 p-8">
+              <p className="text-[#5A6780] text-lg">Failed to load presentation</p>
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-4 max-w-2xl">
+                  <p className="text-sm text-red-800 font-mono">{error}</p>
+                </div>
+              )}
+              <p className="text-sm text-[#5A6780]">
+                Please check the browser console for more details
+              </p>
             </div>
           )}
         </div>
@@ -164,6 +207,19 @@ export function PresentationPreviewDialog({
         {/* Thumbnail Navigation */}
         {!loading && pageImages.length > 0 && (
           <div className="border-t border-[#E0E0E0] bg-white">
+            {/* Locked Notice */}
+            {!isFree && (
+              <div className="px-6 py-3 bg-[#051C2C] text-white flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span className="text-sm font-medium">Preview Locked</span>
+                </div>
+                <span className="text-xs text-white/80">Only showing {pageImages.length} pages of the full presentation</span>
+              </div>
+            )}
+
             <div className="p-4">
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {pageImages.map((img, index) => (
