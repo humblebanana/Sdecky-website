@@ -23,7 +23,7 @@ const LANGUAGES = [
   { code: "all", name: "All Languages" },
   { code: "en", name: "English" },
   { code: "zh", name: "中文" },
-  { code: "ja", name: "日本語" },
+  // { code: "ja", name: "日本語" },
 ];
 
 export default function GalleryPage() {
@@ -114,7 +114,7 @@ export default function GalleryPage() {
                 Presentations Gallery
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-3xl font-light leading-relaxed px-4">
-                Explore our collection of AI-generated presentations across multiple languages and industries.
+                Explore our collection of presentations
               </p>
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function GalleryPage() {
                 {filteredItems.map((item) => (
                   <article
                     key={item.id}
-                    className="group bg-white border border-[#F0F0F0] rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500"
+                    className="group bg-white border border-[#F0F0F0] rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 flex flex-col"
                   >
                     {/* Thumbnail */}
                     <div className="aspect-[16/10] relative bg-[#F0F0F0] overflow-hidden">
@@ -175,16 +175,16 @@ export default function GalleryPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-6 space-y-3">
+                    <div className="p-6 space-y-3 flex flex-col flex-1">
                       <h3 className="font-serif text-xl font-normal text-[#051C2C] line-clamp-2">
                         {item.title}
                       </h3>
-                      <p className="text-sm text-[#5A6780] line-clamp-3 leading-relaxed">
+                      <p className="text-sm text-[#5A6780] line-clamp-3 leading-relaxed flex-1">
                         {item.description}
                       </p>
 
                       {/* Action Links */}
-                      <div className="flex gap-4 pt-2">
+                      <div className="flex gap-4 pt-2 mt-auto">
                         <button
                           onClick={() => {
                             setSelectedPresentation(item);

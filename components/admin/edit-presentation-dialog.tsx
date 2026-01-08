@@ -27,6 +27,7 @@ interface Presentation {
   thumbnail_storage_path: string | null;
   file_size_bytes: number | null;
   created_at: string;
+  is_featured?: boolean;
 }
 
 interface EditPresentationDialogProps {
@@ -44,6 +45,7 @@ export function EditPresentationDialog({
 }: EditPresentationDialogProps) {
   const [title, setTitle] = useState(presentation.title);
   const [description, setDescription] = useState(presentation.description || "");
+  const [isFeatured, setIsFeatured] = useState(presentation.is_featured || false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,6 +67,7 @@ export function EditPresentationDialog({
         .update({
           title: title.trim(),
           description: description.trim() || null,
+          is_featured: isFeatured,
         })
         .eq('id', presentation.id);
 
@@ -88,6 +91,7 @@ export function EditPresentationDialog({
       if (!newOpen) {
         setTitle(presentation.title);
         setDescription(presentation.description || "");
+        setIsFeatured(presentation.is_featured || false);
         setError(null);
       }
       onOpenChange(newOpen);
@@ -126,6 +130,23 @@ export function EditPresentationDialog({
                 rows={3}
                 disabled={loading}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-is-featured">Featured on Homepage</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="edit-is-featured"
+                  checked={isFeatured}
+                  onChange={(e) => setIsFeatured(e.target.checked)}
+                  disabled={loading}
+                  className="h-4 w-4 rounded border-gray-300 text-[#2251FF] focus:ring-[#2251FF]"
+                />
+                <label htmlFor="edit-is-featured" className="text-sm text-muted-foreground cursor-pointer">
+                  Show this presentation on the homepage gallery
+                </label>
+              </div>
             </div>
 
             {error && (

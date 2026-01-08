@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Edit, Trash2, ExternalLink } from "lucide-react";
+import { FileText, Edit, Trash2, ExternalLink, Star } from "lucide-react";
 import { EditPresentationDialog } from "./edit-presentation-dialog";
 import { DeleteConfirmationDialog } from "./delete-confirmation-dialog";
 
@@ -17,6 +17,7 @@ interface Presentation {
   thumbnail_storage_path: string | null;
   file_size_bytes: number | null;
   created_at: string;
+  is_featured?: boolean;
 }
 
 interface PresentationCardAdminProps {
@@ -54,6 +55,13 @@ export function PresentationCardAdmin({ presentation, onUpdate }: PresentationCa
             />
           ) : (
             <FileText className="w-16 h-16 text-muted-foreground" />
+          )}
+          {/* Featured Badge */}
+          {presentation.is_featured && (
+            <div className="absolute top-3 left-3 bg-[#2251FF] text-white px-2 py-1 rounded-sm text-xs font-medium flex items-center gap-1">
+              <Star className="w-3 h-3 fill-current" />
+              Featured
+            </div>
           )}
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
             <Button variant="secondary" size="icon" asChild>

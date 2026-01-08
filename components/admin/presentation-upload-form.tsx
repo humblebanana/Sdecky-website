@@ -24,6 +24,7 @@ export function PresentationUploadForm() {
   const [description, setDescription] = useState("");
   const [language, setLanguage] = useState("en");
   const [isFree, setIsFree] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -102,6 +103,7 @@ export function PresentationUploadForm() {
         file_size_bytes: pdfFile.size,
         language: language,
         is_free: isFree,
+        is_featured: isFeatured,
       });
 
       if (dbError) {
@@ -118,6 +120,7 @@ export function PresentationUploadForm() {
       setDescription("");
       setLanguage("en");
       setIsFree(false);
+      setIsFeatured(false);
       setAutoExtract(true);
 
       // Redirect to dashboard after short delay
@@ -238,6 +241,24 @@ export function PresentationUploadForm() {
             <p className="text-xs text-muted-foreground">
               Free presentations show all pages. Not Free presentations show only half the pages in preview.
             </p>
+          </div>
+
+          {/* Is Featured */}
+          <div className="space-y-2">
+            <Label htmlFor="is_featured">Featured on Homepage</Label>
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="is_featured"
+                checked={isFeatured}
+                onChange={(e) => setIsFeatured(e.target.checked)}
+                disabled={uploading}
+                className="h-4 w-4 rounded border-gray-300 text-[#2251FF] focus:ring-[#2251FF]"
+              />
+              <label htmlFor="is_featured" className="text-sm text-muted-foreground cursor-pointer">
+                Show this presentation on the homepage gallery
+              </label>
+            </div>
           </div>
 
           {/* Progress Bar */}
