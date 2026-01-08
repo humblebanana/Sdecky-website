@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
 
 interface PresentationPreviewDialogProps {
   isOpen: boolean;
@@ -24,6 +24,7 @@ export function PresentationPreviewDialog({
   const [pageImages, setPageImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !pdfUrl) return;
@@ -119,6 +120,30 @@ export function PresentationPreviewDialog({
     };
   }, [isOpen, pdfUrl, isFree]);
 
+  // Keyboard navigation
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrevious();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNext();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        setIsFullscreen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, currentPage, pageImages.length, isFullscreen]);
+
   if (!isOpen) return null;
 
   const handlePrevious = () => {
@@ -138,18 +163,35 @@ export function PresentationPreviewDialog({
       />
 
       {/* Dialog */}
-      <div className="relative bg-white rounded-lg shadow-2xl w-[64vw] h-[64vh] max-w-6xl flex flex-col">
+      <div className={`relative bg-white rounded-lg shadow-2xl flex flex-col ${
+        isFullscreen
+          ? 'w-[98vw] h-[98vh]'
+          : 'w-[64vw] h-[64vh] max-w-6xl'
+      }`}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E0E0E0]">
-          <h2 className="text-xl md:text-2xl font-serif text-[#051C2C]">
+          <h2 className="text-xl md:text-2xl font-serif text-[#051C2C] truncate flex-1 mr-4">
             {title}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-[#F0F0F0] rounded-sm transition-colors"
-          >
-            <X className="w-5 h-5 text-[#5A6780]" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="p-2 hover:bg-[#F0F0F0] rounded-sm transition-colors"
+              title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+            >
+              {isFullscreen ? (
+                <Minimize2 className="w-5 h-5 text-[#5A6780]" />
+              ) : (
+                <Maximize2 className="w-5 h-5 text-[#5A6780]" />
+              )}
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-[#F0F0F0] rounded-sm transition-colors"
+            >
+              <X className="w-5 h-5 text-[#5A6780]" />
+            </button>
+          </div>
         </div>
 
         {/* Main Preview Area */}

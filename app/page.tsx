@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Mail } from "lucide-react";
 import { Hero } from "@/components/hero-section";
 import { Gallery } from "@/components/gallery";
 import { MobileNav } from "@/components/mobile-nav";
@@ -32,10 +33,9 @@ export default function Home() {
                 </Link>
                 <Link
                   href="/waitlist"
-                  className="relative text-lg text-[#051C2C] hover:text-[#2251FF] transition-colors pb-1 group"
+                  className="px-6 py-2.5 bg-[#2251FF] text-white hover:bg-[#051C2C] transition-colors rounded-sm text-base font-medium"
                 >
                   Join Waitlist
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#2251FF] group-hover:w-full transition-all duration-300"></span>
                 </Link>
               </div>
             </div>
@@ -53,19 +53,18 @@ export default function Home() {
       <Gallery />
 
       {/* Footer */}
-      <footer className="w-full border-t border-[#F0F0F0] py-12 bg-white">
-        <div className="container mx-auto px-4 md:px-8 text-center text-sm text-[#5A6780]">
-          <p>&copy; 2025 Sdecky AI. Palo Alto, California.</p>
-          <p className="mt-2">
-            Contact:{" "}
+      <footer className="w-full border-t border-[#F0F0F0] py-8 bg-white">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 text-sm text-[#5A6780]">
+            <p>&copy; 2025 Sdecky AI. Palo Alto, California. All rights reserved.</p>
             <a
               href="mailto:humbleguava@gmail.com"
               className="text-[#2251FF] hover:text-[#051C2C] transition-colors"
+              aria-label="Contact us via email"
             >
-              humbleguava@gmail.com
+              <Mail className="w-5 h-5" />
             </a>
-          </p>
-          <p className="mt-2">All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </main>

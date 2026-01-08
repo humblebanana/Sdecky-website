@@ -39,31 +39,18 @@ export function Hero() {
           storytelling logic and aesthetic excellence.
         </p>
 
-        {/* CTA Buttons - McKinsey Style, Mobile Optimized */}
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center pt-4 md:pt-8 px-4">
-          <a
-            href="/waitlist"
-            className="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white text-base sm:text-lg hover:bg-white hover:text-[#051C2C] transition-all duration-300 text-center"
+        {/* Large Scroll Down CTA */}
+        <div className="flex flex-col items-center gap-3 pt-8 md:pt-12">
+          <p className="text-sm md:text-base text-white/70 font-light">See what's possible</p>
+          <button
+            onClick={scrollToGallery}
+            className="group flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#2251FF] hover:bg-white transition-colors duration-300"
+            aria-label="Scroll to gallery"
           >
-            Join Waitlist →
-          </a>
-          <a
-            href="/gallery"
-            className="px-6 sm:px-8 py-3 sm:py-4 text-white text-base sm:text-lg hover:text-white/70 transition-colors text-center"
-          >
-            View Gallery →
-          </a>
+            <ChevronDown className="w-8 h-8 md:w-10 md:h-10 text-white group-hover:text-[#051C2C] transition-colors duration-300" strokeWidth={2.5} />
+          </button>
         </div>
       </div>
-
-      {/* Scroll Down CTA */}
-      <button
-        onClick={scrollToGallery}
-        className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-white/80 hover:text-white transition-colors group"
-        aria-label="Scroll to gallery"
-      >
-        <ChevronDown className="w-6 h-6 md:w-8 md:h-8 animate-bounce" />
-      </button>
     </section>
   );
 }
