@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileText } from "lucide-react";
+import { FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { PresentationPreviewDialog } from "./presentation-preview-dialog";
 
@@ -19,6 +19,7 @@ const INITIAL_ITEMS: Presentation[] = [];
 export function Gallery() {
   const [items, setItems] = useState<Presentation[]>(INITIAL_ITEMS);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedPresentation, setSelectedPresentation] =
     useState<Presentation | null>(null);
@@ -38,7 +39,7 @@ export function Gallery() {
         }
 
         if (data && data.length > 0) {
-          setItems(data);
+          setItems(data.slice(0, 6)); // Limit to 6 items
         } else {
           setItems([]);
         }
@@ -49,6 +50,35 @@ export function Gallery() {
 
     fetchPresentations();
   }, []);
+
+  const handlePrevious = () => {
+    setCurrentIndex((prev) => (prev === 0 ? items.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev === items.length - 1 ? 0 : prev + 1));
+  };
+
+  const currentItem = items[currentIndex];
+
+  if (loading || items.length === 0) {
+    return (
+      <section id="gallery" className="w-full py-16 md:py-24 bg-[#051C2C]">
+        <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">
+          <div className="flex flex-col items-center justify-center space-y-4 md:space-y-6 text-center">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white leading-tight px-4">
+              Professional presentations,
+              <br />
+              powered by AI
+            </h2>
+            <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-3xl font-light leading-relaxed px-4">
+              {loading ? "Loading presentations..." : "No presentations available yet."}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="gallery" className="w-full py-16 md:py-24 bg-[#051C2C]">
@@ -65,52 +95,88 @@ export function Gallery() {
           </p>
         </div>
 
-        {/* Cards Grid - 1 Column Mobile, 2 Columns Desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {items.slice(0, 4).map((item) => (
-            <article
-              key={item.id}
-              onClick={() => {
-  setSelectedPresentation(item);
-  setPreviewOpen(true);
-}}
-className="group bg-white rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 cursor-pointer"
-            >
-              {/* Thumbnail */}
-              <div className="aspect-[16/9] relative bg-[#F0F0F0] overflow-hidden">
-                {item.thumbnail_url ? (
-                  <img
-                    src={item.thumbnail_url}
-                    alt={item.title}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <FileText className="w-16 h-16 md:w-20 md:h-20 text-[#5A6780]" />
-                  </div>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="p-6 md:p-8 space-y-3 md:space-y-4">
-                <h3 className="font-serif text-xl md:text-2xl font-normal text-[#051C2C] line-clamp-2">
-                  {item.title}
-                </h3>
-                <p className="text-sm md:text-base text-[#5A6780] line-clamp-3 leading-relaxed">
-                  {item.description}
-                </p>
-
-                {/* Action Links - Touch Optimized */}
-                <div className="flex gap-4 md:gap-6 pt-2 md:pt-4">
-<span className="text-[#2251FF] group-hover:text-[#051C2C] transition-colors text-sm font-medium py-2 flex items-center gap-1">
-  View presentation
-  <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
-</span>
+        {/* Carousel Container */}
+        <div className="relative max-w-5xl mx-auto">
+          {/* Main Presentation Card */}
+          <article
+            onClick={() => {
+              setSelectedPresentation(currentItem);
+              setPreviewOpen(true);
+            }}
+            className="bg-white rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 cursor-pointer"
+          >
+            {/* Thumbnail */}
+            <div className="aspect-[16/9] relative bg-[#F0F0F0] overflow-hidden">
+              {currentItem.thumbnail_url ? (
+                <img
+                  src={currentItem.thumbnail_url}
+                  alt={currentItem.title}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <FileText className="w-16 h-16 md:w-20 md:h-20 text-[#5A6780]" />
                 </div>
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="p-6 md:p-8 space-y-3 md:space-y-4">
+              <h3 className="font-serif text-xl md:text-2xl font-normal text-[#051C2C] line-clamp-2">
+                {currentItem.title}
+              </h3>
+              <p className="text-sm md:text-base text-[#5A6780] line-clamp-3 leading-relaxed">
+                {currentItem.description}
+              </p>
+
+              {/* Action Link */}
+              <div className="flex gap-4 md:gap-6 pt-2 md:pt-4">
+                <span className="text-[#2251FF] hover:text-[#051C2C] transition-colors text-sm font-medium py-2 flex items-center gap-1">
+                  View presentation
+                  <span className="inline-block hover:translate-x-1 transition-transform duration-300">→</span>
+                </span>
               </div>
-            </article>
-          ))}
+            </div>
+          </article>
+
+          {/* Navigation Arrows */}
+          {items.length > 1 && (
+            <>
+              <button
+                onClick={handlePrevious}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white hover:bg-[#F0F0F0] transition-colors flex items-center justify-center shadow-lg"
+                aria-label="Previous presentation"
+              >
+                <ChevronLeft className="w-6 h-6 md:w-7 md:h-7 text-[#051C2C]" />
+              </button>
+              <button
+                onClick={handleNext}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white hover:bg-[#F0F0F0] transition-colors flex items-center justify-center shadow-lg"
+                aria-label="Next presentation"
+              >
+                <ChevronRight className="w-6 h-6 md:w-7 md:h-7 text-[#051C2C]" />
+              </button>
+            </>
+          )}
         </div>
+
+        {/* Indicators */}
+        {items.length > 1 && (
+          <div className="flex justify-center gap-2 mt-8">
+            {items.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`transition-all duration-300 rounded-full ${
+                  index === currentIndex
+                    ? "w-8 h-2 bg-white"
+                    : "w-2 h-2 bg-white/40 hover:bg-white/60"
+                }`}
+                aria-label={`Go to presentation ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* View More Button */}
         <div className="flex justify-center mt-12 md:mt-16">
