@@ -24,7 +24,10 @@ export function PresentationPreviewDialog({
   const [pageImages, setPageImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  // Mobile devices default to fullscreen
+  const [isFullscreen, setIsFullscreen] = useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  );
 
   useEffect(() => {
     if (!isOpen || !pdfUrl) return;
@@ -166,7 +169,7 @@ export function PresentationPreviewDialog({
       <div className={`relative bg-white rounded-lg shadow-2xl flex flex-col ${
         isFullscreen
           ? 'w-[98vw] h-[98vh]'
-          : 'w-[64vw] h-[64vh] max-w-6xl'
+          : 'w-[80vw] h-[80vh] max-w-6xl'
       }`}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E0E0E0]">
