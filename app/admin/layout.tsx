@@ -67,6 +67,9 @@ export default async function AdminLayout({
               <Link href="/admin/waitlist" className="text-white/80 hover:text-white transition-colors">
                 Waitlist
               </Link>
+              <Link href="/admin/custom-requests" className="text-white/80 hover:text-white transition-colors">
+                Custom Requests
+              </Link>
             </div>
           </div>
           <div className="flex items-center gap-3 md:gap-4">

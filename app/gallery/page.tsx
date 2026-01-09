@@ -157,7 +157,11 @@ export default function GalleryPage() {
                 {filteredItems.map((item) => (
                   <article
                     key={item.id}
-                    className="group bg-white border border-[#F0F0F0] rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 flex flex-col"
+                    onClick={() => {
+                      setSelectedPresentation(item);
+                      setPreviewOpen(true);
+                    }}
+                    className="group bg-white border border-[#F0F0F0] rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 flex flex-col cursor-pointer"
                   >
                     {/* Thumbnail */}
                     <div className="aspect-[16/10] relative bg-[#F0F0F0] overflow-hidden">
@@ -183,17 +187,12 @@ export default function GalleryPage() {
                         {item.description}
                       </p>
 
-                      {/* Action Links */}
+                      {/* Action Hint */}
                       <div className="flex gap-4 pt-2 mt-auto">
-                        <button
-                          onClick={() => {
-                            setSelectedPresentation(item);
-                            setPreviewOpen(true);
-                          }}
-                          className="text-[#2251FF] hover:text-[#051C2C] transition-colors text-sm font-medium"
-                        >
-                          View →
-                        </button>
+                        <span className="text-[#2251FF] group-hover:text-[#051C2C] transition-colors text-sm font-medium flex items-center gap-1">
+                          View presentation
+                          <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
+                        </span>
                       </div>
                     </div>
                   </article>
