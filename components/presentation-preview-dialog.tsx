@@ -300,7 +300,7 @@ export function PresentationPreviewDialog({
           </div>
           <a
             href="/waitlist"
-            className="px-6 py-2.5 bg-[#051C2C] text-white hover:bg-[#051C2C]/90 transition-colors rounded-sm"
+            className="px-6 py-2.5 bg-[#2251FF] text-white hover:bg-[#051C2C] transition-colors rounded-sm"
           >
             Join Waitlist
           </a>

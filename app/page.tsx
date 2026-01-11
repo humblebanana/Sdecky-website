@@ -10,7 +10,7 @@ export default function Home() {
       {/* Navigation Bar - QuantumBlack/McKinsey Style with Mobile Support */}
       <nav className="w-full bg-white border-b border-[#E0E0E0]">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between h-18 md:h-20">
+          <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo Section */}
             <Link href="/" className="flex flex-col">
               <span className="text-2xl md:text-2xl font-serif font-bold text-[#051C2C]">

@@ -2,31 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Mail, Sparkles, ChevronDown } from "lucide-react";
+import { Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MobileNav } from "@/components/mobile-nav";
 import { CustomRequestForm } from "@/components/custom-request-form";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export default function WaitlistPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
-  const [showCustomForm, setShowCustomForm] = useState(false);
-
-  // Scroll animations
-  const heroContent = useScrollAnimation();
-  const customSection = useScrollAnimation();
-
-  const scrollToCustom = () => {
-    const customRequestSection = document.querySelector('section:nth-of-type(2)');
-    if (customRequestSection) {
-      customRequestSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const [activeTab, setActiveTab] = useState("waitlist");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,11 +49,11 @@ export default function WaitlistPage() {
   };
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       {/* Navigation Bar - Same as Homepage */}
       <nav className="w-full bg-white border-b border-[#E0E0E0]">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between h-18 md:h-20">
+          <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo Section */}
             <Link href="/" className="flex flex-col">
               <span className="text-2xl md:text-2xl font-serif font-bold text-[#051C2C]">
@@ -98,131 +87,130 @@ export default function WaitlistPage() {
         </div>
       </nav>
 
-      {/* Section 1: Hero + Waitlist Form - McKinsey Style */}
-      <section className="relative w-full min-h-screen flex items-center justify-center text-center overflow-hidden bg-[#051C2C]">
-        <div
-          ref={heroContent.ref}
-          className={`relative z-10 max-w-4xl px-4 md:px-6 space-y-10 md:space-y-12 scroll-fade-in ${heroContent.isVisible ? 'visible' : ''}`}
-        >
-          {/* Hero Content */}
-          <div className="space-y-6 md:space-y-8">
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal leading-tight text-white">
-              Be the <span className="text-[#2251FF]">first</span>
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto font-light leading-relaxed">
-              Experience professional AI presentations. Join our waitlist for early access.
-            </p>
-          </div>
-
-          {/* Waitlist Form - Embedded in Hero */}
-          <div className="space-y-6 max-w-2xl mx-auto">
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col sm:flex-row gap-4"
-            >
-              <Input
-                type="email"
-                placeholder="Enter your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="flex-1 h-14 md:h-16 px-6 text-base md:text-lg bg-white border-white focus:border-[#2251FF] rounded-sm"
-                disabled={status === "success"}
-              />
-              <Button
-                type="submit"
-                disabled={loading || status === "success"}
-                className="h-14 md:h-16 px-8 md:px-10 bg-[#2251FF] hover:bg-white hover:text-[#051C2C] text-white rounded-sm text-base md:text-lg font-medium whitespace-nowrap transition-all"
-              >
-                {loading
-                  ? "Joining..."
-                  : status === "success"
-                  ? "Joined ✓"
-                  : "Join Waitlist →"}
-              </Button>
-            </form>
-
-            {/* Success/Error Messages */}
-            {message && (
-              <div className="text-center">
-                {status === "success" && (
-                  <p className="text-base text-[#2251FF]">{message}</p>
-                )}
-                {status === "error" && (
-                  <p className="text-base text-red-600">{message}</p>
-                )}
-              </div>
-            )}
-
-            {/* Privacy Note */}
-            <p className="text-sm text-center text-white/60">
-              We respect your privacy. Your email will only be used to notify you about Sdecky's launch.
-            </p>
-          </div>
-
-          {/* Scroll Down Hint - Custom Request */}
-          <div className="flex flex-col items-center gap-3 pt-8 md:pt-12">
-            <p className="text-sm md:text-base text-white/70 font-light">Need a custom presentation?</p>
-            <button
-              onClick={scrollToCustom}
-              className="group flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-white/40 hover:border-white hover:bg-white/10 transition-all duration-300"
-              aria-label="Scroll to custom request"
-            >
-              <ChevronDown className="w-6 h-6 md:w-7 md:h-7 text-white/70 group-hover:text-white transition-colors duration-300" strokeWidth={2} />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 2: Custom Request - White Background for Contrast */}
-      <section className="w-full min-h-screen flex items-center justify-center bg-white py-20 md:py-32">
-        <div
-          ref={customSection.ref}
-          className={`container px-4 md:px-8 lg:px-12 mx-auto max-w-3xl scroll-fade-in ${customSection.isVisible ? 'visible' : ''}`}
-        >
-          {!showCustomForm ? (
-            <div className="text-center space-y-8 md:space-y-10">
-              <div className="space-y-4 md:space-y-6">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[#051C2C] leading-tight">
-                  Turn Your Content into<br />Professional Slides
-                </h2>
-                <p className="text-lg md:text-xl text-[#5A6780] max-w-2xl mx-auto font-light leading-relaxed">
-                  Have a story to tell? Articles, videos, podcasts—we'll transform your content into presentations that stand out.
-                </p>
-                <p className="text-xl md:text-2xl text-[#051C2C] font-medium">
-                  This service is <span className="text-[#2251FF]">complimentary</span>. Limited slots available.
-                </p>
-              </div>
-
-              <Button
-                onClick={() => setShowCustomForm(true)}
-                className="px-10 py-4 md:px-12 md:py-5 bg-[#2251FF] hover:bg-[#051C2C] text-white rounded-sm text-base md:text-lg font-medium transition-all"
-              >
-                Request Custom Creation →
-              </Button>
-
-              <p className="text-sm text-[#5A6780]">
-                We review each request carefully and respond within 3 business days
+      <main className="flex-1 flex flex-col">
+        {/* Hero Section - Like Gallery Page */}
+        <section className="w-full py-16 md:py-24 bg-[#051C2C]">
+          <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">
+            <div className="flex flex-col items-center justify-center space-y-4 md:space-y-6 text-center">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-normal text-white leading-tight px-4">
+                Get Started with Sdecky
+              </h1>
+              <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-3xl font-light leading-relaxed px-4">
+                Join our waitlist for early access, or request a custom presentation
               </p>
             </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-3xl md:text-4xl font-serif text-[#051C2C]">
-                  Custom Request
-                </h2>
-                <button
-                  onClick={() => setShowCustomForm(false)}
-                  className="text-sm md:text-base text-[#5A6780] hover:text-[#051C2C] transition-colors"
-                >
-                  Hide form
-                </button>
+          </div>
+        </section>
+
+        {/* Main Content - White Background */}
+        <section className="w-full bg-white py-16 md:py-20 flex-1">
+          <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-5xl">
+            {/* Tabs Component - iOS Style */}
+            <Tabs defaultValue="waitlist" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <div className="flex justify-center mb-10 md:mb-12">
+                <TabsList className="relative inline-flex h-auto w-auto bg-[#F0F0F0] p-1.5 rounded-full">
+                  {/* Animated sliding background */}
+                  <div
+                    className="absolute top-1.5 bottom-1.5 bg-white rounded-full shadow-md transition-all duration-300 ease-out"
+                    style={{
+                      left: "0.375rem",
+                      width: "calc(50% - 0.375rem)",
+                      transform: activeTab === "custom" ? "translateX(100%)" : "translateX(0)",
+                    }}
+                  />
+
+                  <TabsTrigger
+                    value="waitlist"
+                    className="relative z-10 rounded-full px-6 md:px-10 py-3 md:py-3.5 text-sm md:text-base font-medium transition-colors duration-300 data-[state=active]:text-[#051C2C] data-[state=inactive]:text-[#5A6780]"
+                  >
+                    Join Waitlist
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="custom"
+                    className="relative z-10 rounded-full px-6 md:px-10 py-3 md:py-3.5 text-sm md:text-base font-medium transition-colors duration-300 data-[state=active]:text-[#051C2C] data-[state=inactive]:text-[#5A6780]"
+                  >
+                    Request Custom
+                  </TabsTrigger>
+                </TabsList>
               </div>
-              <CustomRequestForm />
-            </div>
-          )}
-        </div>
-      </section>
+
+              {/* Waitlist Tab */}
+              <TabsContent value="waitlist" className="max-w-3xl mx-auto">
+                <div className="space-y-8 md:space-y-10">
+                  <div className="space-y-4 text-center">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-[#051C2C]">
+                      Get <span className="text-[#2251FF]">Early Access</span>
+                    </h2>
+                    <p className="text-base md:text-lg text-[#5A6780] font-light leading-relaxed">
+                      Experience professional AI presentations. Join our waitlist to get early access when we launch.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-5 max-w-xl mx-auto">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                      <Input
+                        type="email"
+                        placeholder="Enter your email address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="flex-1 h-16 md:h-16 px-5 md:px-6 text-base md:text-lg border-[#E0E0E0] focus:border-[#2251FF] rounded-lg shadow-sm"
+                        disabled={status === "success"}
+                      />
+                      <Button
+                        type="submit"
+                        disabled={loading || status === "success"}
+                        className="h-16 md:h-16 px-8 md:px-10 bg-[#2251FF] hover:bg-[#051C2C] text-white rounded-lg text-base md:text-lg font-medium whitespace-nowrap shadow-lg hover:shadow-xl transition-all"
+                      >
+                        {loading
+                          ? "Joining..."
+                          : status === "success"
+                          ? "At your service ✓"
+                          : "Join Now"}
+                      </Button>
+                    </div>
+
+                    {/* Feedback Messages */}
+                    {message && (
+                      <div className="text-center">
+                        {status === "success" && (
+                          <p className="text-sm md:text-base text-[#2251FF] font-medium">{message}</p>
+                        )}
+                        {status === "error" && (
+                          <p className="text-sm md:text-base text-red-600">{message}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Privacy Note */}
+                    <p className="text-sm text-center text-[#5A6780]/80">
+                      We respect your privacy. Your email will only be used to notify you about Sdecky's launch.
+                    </p>
+                  </form>
+                </div>
+              </TabsContent>
+
+              {/* Custom Request Tab */}
+              <TabsContent value="custom" className="max-w-3xl mx-auto">
+                <div className="space-y-8">
+                  <div className="space-y-4 text-center">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-[#051C2C] leading-tight">
+                      Turn Your Content into Professional Slides
+                    </h2>
+                    <p className="text-base md:text-lg text-[#5A6780] font-light leading-relaxed">
+                      Have a story to tell? Articles, videos, podcasts—we'll transform your content into presentations that stand out.
+                    </p>
+                    <p className="text-lg md:text-xl text-[#051C2C] font-medium">
+                      This service is <span className="text-[#2251FF]">complimentary</span>. Limited slots available.
+                    </p>
+                  </div>
+                  <CustomRequestForm />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </section>
+      </main>
 
       {/* Footer - Same as Homepage */}
       <footer className="w-full border-t border-[#F0F0F0] py-8 bg-white">
@@ -239,6 +227,6 @@ export default function WaitlistPage() {
           </div>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }
