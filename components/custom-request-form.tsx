@@ -191,18 +191,13 @@ The more context you provide, the better we can craft your presentation."
         <Button
           type="submit"
           disabled={loading || status === "success"}
-          className="w-full h-12 bg-[#051C2C] hover:bg-[#051C2C]/90 text-white rounded-sm text-base font-medium"
+          className="w-full h-12 md:h-14 px-8 md:px-10 bg-[#2251FF] hover:bg-[#051C2C] text-white rounded-lg text-base md:text-lg font-medium shadow-lg hover:shadow-xl transition-all"
         >
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
-            </>
-          ) : status === "success" ? (
-            "Request Submitted ✓"
-          ) : (
-            "Submit Request →"
-          )}
+          {loading
+            ? "Submitting..."
+            : status === "success"
+            ? "Request Submitted ✓"
+            : "Submit Request"}
         </Button>
 
         {/* Notice */}

@@ -115,28 +115,17 @@ export default function GalleryPage() {
           </div>
         </section>
 
-        {/* Language Filter & Gallery - iOS Style Tabs */}
+        {/* Language Filter & Gallery */}
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Language Filter */}
           <section className="w-full py-8 bg-white border-b border-[#F0F0F0]">
             <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">
-              <div className="flex justify-center">
-                <TabsList className="relative inline-flex h-auto w-auto bg-[#F0F0F0] p-1.5 rounded-full">
-                  {/* Animated sliding background */}
-                  <div
-                    className="absolute top-1.5 bottom-1.5 bg-white rounded-full shadow-md transition-all duration-300 ease-out"
-                    style={{
-                      left: "0.375rem",
-                      width: `calc(${100 / LANGUAGES.length}% - 0.375rem)`,
-                      transform: `translateX(${LANGUAGES.findIndex(lang => lang.code === activeTab) * 100}%)`,
-                    }}
-                  />
-
+              <div className="flex justify-center mb-10 md:mb-12">
+                <TabsList>
                   {LANGUAGES.map((lang) => (
                     <TabsTrigger
                       key={lang.code}
                       value={lang.code}
-                      className="relative z-10 rounded-full px-6 md:px-8 py-2.5 md:py-3 text-sm md:text-base font-medium transition-colors duration-300 data-[state=active]:text-[#051C2C] data-[state=inactive]:text-[#5A6780]"
                     >
                       {lang.name}
                     </TabsTrigger>

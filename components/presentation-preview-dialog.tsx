@@ -24,6 +24,7 @@ export function PresentationPreviewDialog({
   const [pageImages, setPageImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
   // Mobile devices default to fullscreen
   const [isFullscreen, setIsFullscreen] = useState(
     typeof window !== 'undefined' && window.innerWidth < 768
@@ -130,10 +131,14 @@ export function PresentationPreviewDialog({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        handlePrevious();
+        setCurrentPage((prev) => Math.max(0, prev - 1));
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        handleNext();
+        setCurrentPage((prev) => {
+          // Only allow navigation if pages are loaded
+          const maxPage = pageImages.length > 0 ? pageImages.length - 1 : 0;
+          return Math.min(maxPage, prev + 1);
+        });
       } else if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
@@ -145,16 +150,25 @@ export function PresentationPreviewDialog({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, currentPage, pageImages.length, isFullscreen]);
+  }, [isOpen, pageImages.length, onClose]);
 
   if (!isOpen) return null;
 
   const handlePrevious = () => {
+    if (isNavigating || pageImages.length === 0) return;
+    setIsNavigating(true);
     setCurrentPage((prev) => Math.max(0, prev - 1));
+    // Reset navigation lock after a short delay
+    setTimeout(() => setIsNavigating(false), 300);
   };
 
   const handleNext = () => {
+    // Only allow navigation if pages are loaded and not currently navigating
+    if (isNavigating || pageImages.length === 0) return;
+    setIsNavigating(true);
     setCurrentPage((prev) => Math.min(pageImages.length - 1, prev + 1));
+    // Reset navigation lock after a short delay
+    setTimeout(() => setIsNavigating(false), 300);
   };
 
   return (
@@ -207,11 +221,17 @@ export function PresentationPreviewDialog({
             <>
               {/* Current Page */}
               <div className="flex items-center justify-center h-full p-8">
-                <img
-                  src={pageImages[currentPage]}
-                  alt={`Page ${currentPage + 1}`}
-                  className="max-w-full max-h-full object-contain shadow-2xl"
-                />
+                {pageImages[currentPage] ? (
+                  <img
+                    src={pageImages[currentPage]}
+                    alt={`Page ${currentPage + 1}`}
+                    className="max-w-full max-h-full object-contain shadow-2xl"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <p className="text-[#5A6780]">Loading page...</p>
+                  </div>
+                )}
               </div>
 
               {/* Navigation Arrows */}
@@ -219,14 +239,14 @@ export function PresentationPreviewDialog({
                 <>
                   <button
                     onClick={handlePrevious}
-                    disabled={currentPage === 0}
+                    disabled={currentPage === 0 || isNavigating}
                     className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft className="w-6 h-6 text-[#051C2C]" />
                   </button>
                   <button
                     onClick={handleNext}
-                    disabled={currentPage === pageImages.length - 1}
+                    disabled={currentPage === pageImages.length - 1 || isNavigating}
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronRight className="w-6 h-6 text-[#051C2C]" />

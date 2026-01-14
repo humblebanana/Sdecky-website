@@ -105,30 +105,14 @@ export default function WaitlistPage() {
         {/* Main Content - White Background */}
         <section className="w-full bg-white py-16 md:py-20 flex-1">
           <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-5xl">
-            {/* Tabs Component - iOS Style */}
+            {/* Tabs Component */}
             <Tabs defaultValue="waitlist" value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="flex justify-center mb-10 md:mb-12">
-                <TabsList className="relative inline-flex h-auto w-auto bg-[#F0F0F0] p-1.5 rounded-full">
-                  {/* Animated sliding background */}
-                  <div
-                    className="absolute top-1.5 bottom-1.5 bg-white rounded-full shadow-md transition-all duration-300 ease-out"
-                    style={{
-                      left: "0.375rem",
-                      width: "calc(50% - 0.375rem)",
-                      transform: activeTab === "custom" ? "translateX(100%)" : "translateX(0)",
-                    }}
-                  />
-
-                  <TabsTrigger
-                    value="waitlist"
-                    className="relative z-10 rounded-full px-6 md:px-10 py-3 md:py-3.5 text-sm md:text-base font-medium transition-colors duration-300 data-[state=active]:text-[#051C2C] data-[state=inactive]:text-[#5A6780]"
-                  >
+                <TabsList>
+                  <TabsTrigger value="waitlist">
                     Join Waitlist
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="custom"
-                    className="relative z-10 rounded-full px-6 md:px-10 py-3 md:py-3.5 text-sm md:text-base font-medium transition-colors duration-300 data-[state=active]:text-[#051C2C] data-[state=inactive]:text-[#5A6780]"
-                  >
+                  <TabsTrigger value="custom">
                     Request Custom
                   </TabsTrigger>
                 </TabsList>
@@ -160,7 +144,7 @@ export default function WaitlistPage() {
                       <Button
                         type="submit"
                         disabled={loading || status === "success"}
-                        className="h-16 md:h-16 px-8 md:px-10 bg-[#2251FF] hover:bg-[#051C2C] text-white rounded-lg text-base md:text-lg font-medium whitespace-nowrap shadow-lg hover:shadow-xl transition-all"
+                        className="h-12 md:h-14 px-8 md:px-10 bg-[#2251FF] hover:bg-[#051C2C] text-white rounded-lg text-base md:text-lg font-medium whitespace-nowrap shadow-lg hover:shadow-xl transition-all"
                       >
                         {loading
                           ? "Joining..."
