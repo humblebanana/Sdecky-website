@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback, useLayoutEffect } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { PresentationPreviewDialog } from "./presentation-preview-dialog";
-import { preloadFirstPage } from "@/lib/pdf-cache";
 
 interface Presentation {
   id: string;
@@ -34,10 +33,6 @@ export function Gallery() {
       setSkipAnim(true);
     }
     sessionStorage.setItem("gallery-anim-played", "1");
-  }, []);
-
-  const handleHoverPreload = useCallback((pdfUrl: string) => {
-    preloadFirstPage(pdfUrl);
   }, []);
 
   useEffect(() => {
@@ -105,7 +100,6 @@ export function Gallery() {
                 setSelectedPresentation(item);
                 setPreviewOpen(true);
               }}
-              onMouseEnter={() => handleHoverPreload(item.pdf_url)}
               className="group bg-white rounded-sm overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col hover:-translate-y-1"
             >
               <div className="aspect-[16/9] relative bg-[#F0F0F0] overflow-hidden">

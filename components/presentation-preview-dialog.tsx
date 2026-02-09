@@ -28,6 +28,7 @@ export function PresentationPreviewDialog({
   const [currentPage, setCurrentPage] = useState(0);
   const [pageImages, setPageImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingStatus, setLoadingStatus] = useState<string>("Loading...");
   const [error, setError] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -59,6 +60,7 @@ export function PresentationPreviewDialog({
     const loadPDF = async () => {
       setCurrentPage(0);
       setError(null);
+      setLoadingStatus("Loading PDF...");
 
       // Check cache first
       const cached = getCachedPages(pdfUrl);
@@ -80,9 +82,10 @@ export function PresentationPreviewDialog({
         const pdfjsLib = await import("pdfjs-dist");
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
-        // Fetch PDF with timeout
+        setLoadingStatus("Downloading PDF...");
+        // Fetch PDF with timeout - use simple arrayBuffer() for speed
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
 
         const response = await fetch(pdfUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
@@ -90,10 +93,11 @@ export function PresentationPreviewDialog({
         if (!response.ok) {
           throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
         }
-        const arrayBuffer = await response.arrayBuffer();
 
+        const arrayBuffer = await response.arrayBuffer();
         if (isCancelled) return;
 
+        setLoadingStatus("Rendering pages...");
         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
         const numPages = pdf.numPages;
@@ -149,7 +153,7 @@ export function PresentationPreviewDialog({
           let errorMessage = "Unknown error";
           if (error instanceof Error) {
             if (error.name === "AbortError") {
-              errorMessage = "PDF loading timed out. The file may be too large or the connection is slow.";
+              errorMessage = "PDF loading timed out after 20 seconds. The file may be too large or the connection is slow.";
             } else {
               errorMessage = error.message;
             }
@@ -267,8 +271,9 @@ export function PresentationPreviewDialog({
         {/* Main Preview Area */}
         <div className="flex-1 overflow-hidden bg-[#F0F0F0] relative">
           {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-[#5A6780]">Loading presentation...</p>
+            <div className="flex flex-col items-center justify-center h-full gap-4">
+              <div className="w-12 h-12 border-4 border-[#2251FF] border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-[#5A6780]">{loadingStatus}</p>
             </div>
           ) : pageImages.length > 0 ? (
             <>
