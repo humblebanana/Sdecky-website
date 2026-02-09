@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useLayoutEffect } from "react";
 import { FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { PresentationPreviewDialog } from "./presentation-preview-dialog";
+import { preloadFirstPage } from "@/lib/pdf-cache";
 
 interface Presentation {
   id: string;
@@ -24,6 +25,20 @@ export function Gallery() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedPresentation, setSelectedPresentation] =
     useState<Presentation | null>(null);
+
+  // After first play, skip entrance animations on revisit (duration=0)
+  const [skipAnim, setSkipAnim] = useState(false);
+
+  useLayoutEffect(() => {
+    if (sessionStorage.getItem("gallery-anim-played") === "1") {
+      setSkipAnim(true);
+    }
+    sessionStorage.setItem("gallery-anim-played", "1");
+  }, []);
+
+  const handleHoverPreload = useCallback((pdfUrl: string) => {
+    preloadFirstPage(pdfUrl);
+  }, []);
 
   useEffect(() => {
     async function fetchPresentations() {
@@ -58,10 +73,10 @@ export function Gallery() {
       <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">
         {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: skipAnim ? 0 : 0.9, ease: [0.25, 0.1, 0.25, 1] }}
           className="flex flex-col items-center justify-center space-y-4 md:space-y-6 text-center mb-12 md:mb-16"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white leading-tight px-4">
@@ -73,32 +88,32 @@ export function Gallery() {
           </p>
         </motion.div>
 
-        {/* Cards Grid - 1 Column Mobile, 2 Columns Desktop */}
+        {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {items.slice(0, 6).map((item, index) => (
             <motion.article
               key={item.id}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
+              initial={{ opacity: 0, y: 60, scale: 0.96 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-80px" }}
               transition={{
-                duration: 0.6,
-                delay: index * 0.15,
-                ease: "easeOut"
+                duration: skipAnim ? 0 : 0.8,
+                delay: skipAnim ? 0 : index * 0.15,
+                ease: [0.25, 0.1, 0.25, 1],
               }}
               onClick={() => {
                 setSelectedPresentation(item);
                 setPreviewOpen(true);
               }}
-              className="group bg-white rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 cursor-pointer flex flex-col"
+              onMouseEnter={() => handleHoverPreload(item.pdf_url)}
+              className="group bg-white rounded-sm overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col hover:-translate-y-1"
             >
-              {/* Thumbnail */}
               <div className="aspect-[16/9] relative bg-[#F0F0F0] overflow-hidden">
                 {item.thumbnail_url ? (
                   <img
                     src={item.thumbnail_url}
                     alt={item.title}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-contain group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
@@ -107,7 +122,6 @@ export function Gallery() {
                 )}
               </div>
 
-              {/* Content */}
               <div className="p-6 md:p-8 space-y-3 md:space-y-4 flex flex-col flex-1">
                 <h3 className="font-serif text-xl md:text-2xl font-normal text-[#051C2C] line-clamp-2">
                   {item.title}
@@ -116,7 +130,6 @@ export function Gallery() {
                   {item.description}
                 </p>
 
-                {/* Action Links - Touch Optimized */}
                 <div className="flex gap-4 md:gap-6 pt-2 md:pt-4 mt-auto">
                   <span className="text-[#2251FF] group-hover:text-[#051C2C] transition-colors text-sm font-medium py-2 flex items-center gap-1">
                     View presentation
@@ -133,7 +146,7 @@ export function Gallery() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+          transition={{ duration: skipAnim ? 0 : 0.6, delay: skipAnim ? 0 : 0.3, ease: "easeOut" }}
           className="flex justify-center mt-12 md:mt-16"
         >
           <a
@@ -153,6 +166,7 @@ export function Gallery() {
             setPreviewOpen(false);
             setSelectedPresentation(null);
           }}
+          presentationId={selectedPresentation.id}
           title={selectedPresentation.title}
           pdfUrl={selectedPresentation.pdf_url}
           isFree={selectedPresentation.is_free ?? false}

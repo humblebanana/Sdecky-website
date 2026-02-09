@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
 @layer base {
   :root {
     /* McKinsey Navy - Main Brand Color */

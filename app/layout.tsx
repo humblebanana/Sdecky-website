@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Libre_Baskerville } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -46,7 +47,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <SmoothScroll>
+            {children}
+          </SmoothScroll>
         </ThemeProvider>
       </body>
     </html>

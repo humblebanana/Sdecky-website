@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { X, ChevronLeft, ChevronRight, Maximize2, Share2, Check } from "lucide-react";
+import { getCachedPages, isCacheComplete, setCachedPages } from "@/lib/pdf-cache";
 
 interface PresentationPreviewDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  presentationId: string;
   title: string;
   pdfUrl: string;
   isFree: boolean;
@@ -15,20 +18,38 @@ interface PresentationPreviewDialogProps {
 export function PresentationPreviewDialog({
   isOpen,
   onClose,
+  presentationId,
   title,
   pdfUrl,
   isFree,
   onDownload,
 }: PresentationPreviewDialogProps) {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
   const [pageImages, setPageImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
-  // Mobile devices default to fullscreen
-  const [isFullscreen, setIsFullscreen] = useState(
-    typeof window !== 'undefined' && window.innerWidth < 768
-  );
+  const [copied, setCopied] = useState(false);
+  const thumbRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const handleShareLink = async () => {
+    const url = `${window.location.origin}/presentations/${presentationId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      const input = document.createElement("input");
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   useEffect(() => {
     if (!isOpen || !pdfUrl) return;
@@ -36,49 +57,56 @@ export function PresentationPreviewDialog({
     let isCancelled = false;
 
     const loadPDF = async () => {
-      setLoading(true);
-      setPageImages([]);
       setCurrentPage(0);
       setError(null);
 
-      try {
-        // Dynamically import pdfjs-dist only on client side
-        const pdfjsLib = await import("pdfjs-dist");
+      // Check cache first
+      const cached = getCachedPages(pdfUrl);
+      const hasCached = !!(cached && cached.length > 0);
+      const cachedComplete = isCacheComplete(pdfUrl);
 
-        // Set worker source - use jsDelivr CDN (China-friendly, global CDN)
+      if (hasCached) {
+        setPageImages(cached);
+        setLoading(false);
+        if (cachedComplete) {
+          return;
+        }
+      } else {
+        setLoading(true);
+        setPageImages([]);
+      }
+
+      try {
+        const pdfjsLib = await import("pdfjs-dist");
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
-        console.log('[Preview] Loading PDF:', pdfUrl);
-        console.log('[Preview] PDF.js version:', pdfjsLib.version);
-        console.log('[Preview] Worker URL:', pdfjsLib.GlobalWorkerOptions.workerSrc);
-
-        // Fetch PDF as ArrayBuffer to handle CORS for Supabase Storage
         const response = await fetch(pdfUrl);
         if (!response.ok) {
-          console.error('[Preview] Fetch failed:', response.status, response.statusText);
           throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
         }
         const arrayBuffer = await response.arrayBuffer();
-        console.log('[Preview] PDF fetched, size:', arrayBuffer.byteLength);
 
         if (isCancelled) return;
 
         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
         const numPages = pdf.numPages;
-        console.log('[Preview] PDF loaded, pages:', numPages);
 
-        // Determine how many pages to show based on is_free
         const pagesToRender = isFree ? numPages : Math.ceil(numPages / 2);
 
-        const renderedImages: string[] = [];
+        const renderedImages: string[] = hasCached
+          ? cached!.slice(0, pagesToRender)
+          : [];
 
-        // Render pages progressively - show first page immediately
-        for (let pageNum = 1; pageNum <= pagesToRender; pageNum++) {
+        if (hasCached && renderedImages.length !== cached!.length) {
+          setPageImages([...renderedImages]);
+        }
+
+        for (let pageNum = renderedImages.length + 1; pageNum <= pagesToRender; pageNum++) {
           if (isCancelled) return;
 
           const page = await pdf.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 1.5 }); // Reduced scale for faster loading
+          const viewport = page.getViewport({ scale: 1.5 });
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
 
@@ -90,22 +118,24 @@ export function PresentationPreviewDialog({
           await page.render({
             canvasContext: context,
             viewport: viewport,
-            canvas: canvas, // Required by pdfjs-dist type definition
+            canvas: canvas,
           }).promise;
 
-          const imageData = canvas.toDataURL("image/jpeg", 0.85); // JPEG with compression
+          const imageData = canvas.toDataURL("image/jpeg", 0.85);
 
           if (isCancelled) return;
 
           renderedImages.push(imageData);
-
-          // Update state progressively
           setPageImages([...renderedImages]);
 
-          // Show first page immediately
-          if (pageNum === 1) {
+          if (pageNum === 1 && !hasCached) {
             setLoading(false);
           }
+        }
+
+        // Write to cache after all pages rendered
+        if (!isCancelled) {
+          setCachedPages(pdfUrl, renderedImages);
         }
       } catch (error) {
         console.error("Error loading PDF:", error);
@@ -142,15 +172,19 @@ export function PresentationPreviewDialog({
       } else if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
-      } else if (e.key === 'f' || e.key === 'F') {
-        e.preventDefault();
-        setIsFullscreen((prev) => !prev);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, pageImages.length, onClose]);
+
+  useEffect(() => {
+    const current = thumbRefs.current[currentPage];
+    if (current) {
+      current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [currentPage, pageImages.length]);
 
   if (!isOpen) return null;
 
@@ -180,11 +214,7 @@ export function PresentationPreviewDialog({
       />
 
       {/* Dialog */}
-      <div className={`relative bg-white rounded-lg shadow-2xl flex flex-col ${
-        isFullscreen
-          ? 'w-[98vw] h-[98vh]'
-          : 'w-[80vw] h-[80vh] max-w-6xl'
-      }`}>
+      <div className="relative bg-white rounded-lg shadow-2xl flex flex-col w-[80vw] h-[80vh] max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E0E0E0]">
           <h2 className="text-xl md:text-2xl font-serif text-[#051C2C] truncate flex-1 mr-4">
@@ -192,15 +222,25 @@ export function PresentationPreviewDialog({
           </h2>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 hover:bg-[#F0F0F0] rounded-sm transition-colors"
-              title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              onClick={handleShareLink}
+              className="p-2 hover:bg-[#F0F0F0] rounded-sm transition-colors flex items-center gap-1.5"
+              title="Copy link"
             >
-              {isFullscreen ? (
-                <Minimize2 className="w-5 h-5 text-[#5A6780]" />
+              {copied ? (
+                <Check className="w-5 h-5 text-green-600" />
               ) : (
-                <Maximize2 className="w-5 h-5 text-[#5A6780]" />
+                <Share2 className="w-5 h-5 text-[#5A6780]" />
               )}
+              <span className="hidden sm:inline text-sm text-[#5A6780]">
+                {copied ? "Copied!" : "Share"}
+              </span>
+            </button>
+            <button
+              onClick={() => router.push(`/presentations/${presentationId}`)}
+              className="p-2 hover:bg-[#F0F0F0] rounded-sm transition-colors"
+              title="Open full page"
+            >
+              <Maximize2 className="w-5 h-5 text-[#5A6780]" />
             </button>
             <button
               onClick={onClose}
@@ -290,6 +330,9 @@ export function PresentationPreviewDialog({
                 {pageImages.map((img, index) => (
                   <button
                     key={index}
+                    ref={(el) => {
+                      thumbRefs.current[index] = el;
+                    }}
                     onClick={() => setCurrentPage(index)}
                     className={`flex-shrink-0 border-2 rounded-sm transition-all ${
                       currentPage === index

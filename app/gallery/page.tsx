@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileText, Mail } from "lucide-react";
+import Image from "next/image";
+import { FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MobileNav } from "@/components/mobile-nav";
 import { PresentationPreviewDialog } from "@/components/presentation-preview-dialog";
+import { Footer } from "@/components/footer";
 
 interface Presentation {
   id: string;
@@ -24,8 +26,50 @@ const LANGUAGES = [
   { code: "all", name: "All" },
   { code: "en", name: "English" },
   { code: "zh", name: "Chinese" },
-  // { code: "ja", name: "日本語" },
 ];
+
+function PresentationCard({
+  item,
+  onClick,
+}: {
+  item: Presentation;
+  onClick: () => void;
+}) {
+  return (
+    <article
+      onClick={onClick}
+      className="group bg-white border border-[#F0F0F0] rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 flex flex-col cursor-pointer"
+    >
+      <div className="aspect-[16/10] relative bg-[#F0F0F0] overflow-hidden">
+        {item.thumbnail_url ? (
+          <img
+            src={item.thumbnail_url}
+            alt={item.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <FileText className="w-16 h-16 md:w-20 md:h-20 text-[#5A6780]" />
+          </div>
+        )}
+      </div>
+      <div className="p-6 space-y-3 flex flex-col flex-1">
+        <h3 className="font-serif text-xl font-normal text-[#051C2C] line-clamp-2">
+          {item.title}
+        </h3>
+        <p className="text-sm text-[#5A6780] line-clamp-3 leading-relaxed flex-1">
+          {item.description}
+        </p>
+        <div className="flex gap-4 pt-2 mt-auto">
+          <span className="text-[#2251FF] group-hover:text-[#051C2C] transition-colors text-sm font-medium flex items-center gap-1">
+            View presentation
+            <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
+          </span>
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export default function GalleryPage() {
   const [items, setItems] = useState<Presentation[]>(INITIAL_ITEMS);
@@ -60,22 +104,36 @@ export default function GalleryPage() {
     fetchPresentations();
   }, []);
 
+  const openPreview = (item: Presentation) => {
+    setSelectedPresentation(item);
+    setPreviewOpen(true);
+  };
+
+  const renderGrid = (filteredItems: Presentation[]) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {filteredItems.map((item) => (
+        <PresentationCard key={item.id} item={item} onClick={() => openPreview(item)} />
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Navigation Bar */}
       <nav className="w-full bg-white border-b border-[#E0E0E0]">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo Section */}
-            <Link href="/" className="flex flex-col">
-              <span className="text-2xl md:text-2xl font-serif font-bold text-[#051C2C]">
-                Sdecky
-              </span>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/sdecky_full_light_bg.png"
+                alt="Sdecky"
+                width={400}
+                height={100}
+                className="h-18 md:h-20 w-auto"
+                priority
+              />
             </Link>
-
-            {/* Desktop Navigation Links */}
             <div className="hidden md:flex flex-col items-end">
-              {/* Navigation Items */}
               <div className="flex gap-8 items-center">
                 <Link
                   href="/gallery"
@@ -92,14 +150,11 @@ export default function GalleryPage() {
                 </Link>
               </div>
             </div>
-
-            {/* Mobile Navigation */}
             <MobileNav />
           </div>
         </div>
       </nav>
 
-      {/* Page Content */}
       <div className="flex-1">
         {/* Hero Section */}
         <section className="w-full py-16 md:py-24 bg-[#051C2C]">
@@ -115,18 +170,13 @@ export default function GalleryPage() {
           </div>
         </section>
 
-        {/* Language Filter & Gallery */}
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Language Filter */}
           <section className="w-full py-8 bg-white border-b border-[#F0F0F0]">
             <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">
               <div className="flex justify-center mb-10 md:mb-12">
                 <TabsList>
                   {LANGUAGES.map((lang) => (
-                    <TabsTrigger
-                      key={lang.code}
-                      value={lang.code}
-                    >
+                    <TabsTrigger key={lang.code} value={lang.code}>
                       {lang.name}
                     </TabsTrigger>
                   ))}
@@ -135,181 +185,38 @@ export default function GalleryPage() {
             </div>
           </section>
 
-          {/* Gallery Grid - All Languages */}
           <TabsContent value="all" className="w-full">
             <section className="w-full py-16 bg-white">
               <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">
                 {loading ? (
-                  <div className="text-center py-12">
-                    <p className="text-[#5A6780]">Loading presentations...</p>
-                  </div>
+                  <div className="text-center py-12"><p className="text-[#5A6780]">Loading presentations...</p></div>
                 ) : items.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-[#5A6780]">No presentations found.</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {items.map((item) => (
-                      <article
-                        key={item.id}
-                        onClick={() => {
-                          setSelectedPresentation(item);
-                          setPreviewOpen(true);
-                        }}
-                        className="group bg-white border border-[#F0F0F0] rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 flex flex-col cursor-pointer"
-                      >
-                        {/* Thumbnail */}
-                        <div className="aspect-[16/10] relative bg-[#F0F0F0] overflow-hidden">
-                          {item.thumbnail_url ? (
-                            <img
-                              src={item.thumbnail_url}
-                              alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            />
-                          ) : (
-                            <div className="flex items-center justify-center h-full">
-                              <FileText className="w-16 h-16 md:w-20 md:h-20 text-[#5A6780]" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-6 space-y-3 flex flex-col flex-1">
-                          <h3 className="font-serif text-xl font-normal text-[#051C2C] line-clamp-2">
-                            {item.title}
-                          </h3>
-                          <p className="text-sm text-[#5A6780] line-clamp-3 leading-relaxed flex-1">
-                            {item.description}
-                          </p>
-
-                          {/* Action Hint */}
-                          <div className="flex gap-4 pt-2 mt-auto">
-                            <span className="text-[#2251FF] group-hover:text-[#051C2C] transition-colors text-sm font-medium flex items-center gap-1">
-                              View presentation
-                              <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
-                            </span>
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
+                  <div className="text-center py-12"><p className="text-[#5A6780]">No presentations found.</p></div>
+                ) : renderGrid(items)}
               </div>
             </section>
           </TabsContent>
 
-          {/* Gallery Grid - English */}
           <TabsContent value="en" className="w-full">
             <section className="w-full py-16 bg-white">
               <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">
                 {loading ? (
-                  <div className="text-center py-12">
-                    <p className="text-[#5A6780]">Loading presentations...</p>
-                  </div>
-                ) : items.filter((item) => item.language === "en").length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-[#5A6780]">No English presentations found.</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {items.filter((item) => item.language === "en").map((item) => (
-                      <article
-                        key={item.id}
-                        onClick={() => {
-                          setSelectedPresentation(item);
-                          setPreviewOpen(true);
-                        }}
-                        className="group bg-white border border-[#F0F0F0] rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 flex flex-col cursor-pointer"
-                      >
-                        <div className="aspect-[16/10] relative bg-[#F0F0F0] overflow-hidden">
-                          {item.thumbnail_url ? (
-                            <img
-                              src={item.thumbnail_url}
-                              alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            />
-                          ) : (
-                            <div className="flex items-center justify-center h-full">
-                              <FileText className="w-16 h-16 md:w-20 md:h-20 text-[#5A6780]" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-6 space-y-3 flex flex-col flex-1">
-                          <h3 className="font-serif text-xl font-normal text-[#051C2C] line-clamp-2">
-                            {item.title}
-                          </h3>
-                          <p className="text-sm text-[#5A6780] line-clamp-3 leading-relaxed flex-1">
-                            {item.description}
-                          </p>
-                          <div className="flex gap-4 pt-2 mt-auto">
-                            <span className="text-[#2251FF] group-hover:text-[#051C2C] transition-colors text-sm font-medium flex items-center gap-1">
-                              View presentation
-                              <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
-                            </span>
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
+                  <div className="text-center py-12"><p className="text-[#5A6780]">Loading presentations...</p></div>
+                ) : items.filter((i) => i.language === "en").length === 0 ? (
+                  <div className="text-center py-12"><p className="text-[#5A6780]">No English presentations found.</p></div>
+                ) : renderGrid(items.filter((i) => i.language === "en"))}
               </div>
             </section>
           </TabsContent>
 
-          {/* Gallery Grid - 中文 */}
           <TabsContent value="zh" className="w-full">
             <section className="w-full py-16 bg-white">
               <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">
                 {loading ? (
-                  <div className="text-center py-12">
-                    <p className="text-[#5A6780]">Loading presentations...</p>
-                  </div>
-                ) : items.filter((item) => item.language === "zh").length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-[#5A6780]">No Chinese presentations found.</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {items.filter((item) => item.language === "zh").map((item) => (
-                      <article
-                        key={item.id}
-                        onClick={() => {
-                          setSelectedPresentation(item);
-                          setPreviewOpen(true);
-                        }}
-                        className="group bg-white border border-[#F0F0F0] rounded-sm overflow-hidden hover:shadow-2xl transition-shadow duration-500 flex flex-col cursor-pointer"
-                      >
-                        <div className="aspect-[16/10] relative bg-[#F0F0F0] overflow-hidden">
-                          {item.thumbnail_url ? (
-                            <img
-                              src={item.thumbnail_url}
-                              alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            />
-                          ) : (
-                            <div className="flex items-center justify-center h-full">
-                              <FileText className="w-16 h-16 md:w-20 md:h-20 text-[#5A6780]" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-6 space-y-3 flex flex-col flex-1">
-                          <h3 className="font-serif text-xl font-normal text-[#051C2C] line-clamp-2">
-                            {item.title}
-                          </h3>
-                          <p className="text-sm text-[#5A6780] line-clamp-3 leading-relaxed flex-1">
-                            {item.description}
-                          </p>
-                          <div className="flex gap-4 pt-2 mt-auto">
-                            <span className="text-[#2251FF] group-hover:text-[#051C2C] transition-colors text-sm font-medium flex items-center gap-1">
-                              View presentation
-                              <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
-                            </span>
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
+                  <div className="text-center py-12"><p className="text-[#5A6780]">Loading presentations...</p></div>
+                ) : items.filter((i) => i.language === "zh").length === 0 ? (
+                  <div className="text-center py-12"><p className="text-[#5A6780]">No Chinese presentations found.</p></div>
+                ) : renderGrid(items.filter((i) => i.language === "zh"))}
               </div>
             </section>
           </TabsContent>
@@ -324,27 +231,14 @@ export default function GalleryPage() {
             setPreviewOpen(false);
             setSelectedPresentation(null);
           }}
+          presentationId={selectedPresentation.id}
           title={selectedPresentation.title}
           pdfUrl={selectedPresentation.pdf_url}
           isFree={selectedPresentation.is_free ?? false}
         />
       )}
 
-      {/* Footer */}
-      <footer className="w-full border-t border-[#F0F0F0] py-8 bg-white">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 text-sm text-[#5A6780]">
-            <p>&copy; 2025 Sdecky AI. Palo Alto, California. All rights reserved.</p>
-            <a
-              href="mailto:humbleguava@gmail.com"
-              className="text-[#2251FF] hover:text-[#051C2C] transition-colors"
-              aria-label="Contact us via email"
-            >
-              <Mail className="w-5 h-5" />
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
