@@ -63,7 +63,13 @@ export function PresentationViewer({
         const pdfjsLib = await import("pdfjs-dist");
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
-        const response = await fetch(pdfUrl);
+        // Fetch PDF with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        const response = await fetch(pdfUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
           throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
         }
@@ -106,7 +112,15 @@ export function PresentationViewer({
       } catch (err) {
         console.error("Error loading PDF:", err);
         if (!isCancelled) {
-          setError(err instanceof Error ? err.message : "Unknown error");
+          let errorMessage = "Unknown error";
+          if (err instanceof Error) {
+            if (err.name === "AbortError") {
+              errorMessage = "PDF loading timed out. The file may be too large or the connection is slow.";
+            } else {
+              errorMessage = err.message;
+            }
+          }
+          setError(errorMessage);
           setLoading(false);
         }
       }
@@ -319,7 +333,7 @@ export function PresentationViewer({
           height={32}
           className="rounded-full group-hover:rotate-12 transition-transform duration-300"
         />
-        <span className="text-sm font-serif font-medium">Crafted with Sdeck</span>
+        <span className="text-sm font-serif font-medium">Crafted with Sdecky</span>
       </Link>
     </div>
   );
