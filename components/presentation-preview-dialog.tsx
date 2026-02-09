@@ -80,7 +80,13 @@ export function PresentationPreviewDialog({
         const pdfjsLib = await import("pdfjs-dist");
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
-        const response = await fetch(pdfUrl);
+        // Fetch PDF with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        const response = await fetch(pdfUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
           throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
         }
@@ -139,8 +145,15 @@ export function PresentationPreviewDialog({
         }
       } catch (error) {
         console.error("Error loading PDF:", error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         if (!isCancelled) {
+          let errorMessage = "Unknown error";
+          if (error instanceof Error) {
+            if (error.name === "AbortError") {
+              errorMessage = "PDF loading timed out. The file may be too large or the connection is slow.";
+            } else {
+              errorMessage = error.message;
+            }
+          }
           setError(errorMessage);
           setLoading(false);
         }
