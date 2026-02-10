@@ -91,14 +91,14 @@ export function PresentationViewer({
         for (let pageNum = renderedImages.length + 1; pageNum <= pagesToRender; pageNum++) {
           if (isCancelled) return;
           const page = await pdf.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 1.5 });
+          const viewport = page.getViewport({ scale: 2.5 });
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
           if (!context) continue;
           canvas.width = viewport.width;
           canvas.height = viewport.height;
           await page.render({ canvasContext: context, viewport, canvas }).promise;
-          const imageData = canvas.toDataURL("image/jpeg", 0.85);
+          const imageData = canvas.toDataURL("image/jpeg", 0.95);
           if (isCancelled) return;
           renderedImages.push(imageData);
           setPageImages([...renderedImages]);

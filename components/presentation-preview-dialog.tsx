@@ -114,7 +114,7 @@ export function PresentationPreviewDialog({
           if (isCancelled) return;
 
           const page = await pdf.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 1.5 });
+          const viewport = page.getViewport({ scale: 2.5 });
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
 
@@ -129,7 +129,7 @@ export function PresentationPreviewDialog({
             canvas: canvas,
           }).promise;
 
-          const imageData = canvas.toDataURL("image/jpeg", 0.85);
+          const imageData = canvas.toDataURL("image/jpeg", 0.95);
 
           if (isCancelled) return;
 

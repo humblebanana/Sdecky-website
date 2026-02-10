@@ -36,14 +36,14 @@ export function preloadFirstPage(pdfUrl: string): void {
 
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 1.5 });
+      const viewport = page.getViewport({ scale: 2.5 });
       const canvas = document.createElement("canvas");
       const context = canvas.getContext("2d");
       if (!context) return;
       canvas.width = viewport.width;
       canvas.height = viewport.height;
       await page.render({ canvasContext: context, viewport, canvas }).promise;
-      const imageData = canvas.toDataURL("image/jpeg", 0.85);
+      const imageData = canvas.toDataURL("image/jpeg", 0.95);
 
       // Only set if not already cached with more pages
       if (!cache.has(pdfUrl)) {
