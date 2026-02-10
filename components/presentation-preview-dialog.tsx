@@ -60,7 +60,7 @@ export function PresentationPreviewDialog({
     const loadPDF = async () => {
       setCurrentPage(0);
       setError(null);
-      setLoadingStatus("Loading PDF...");
+      setLoadingStatus("Loading...");
 
       // Check cache first
       const cached = getCachedPages(pdfUrl);
@@ -82,7 +82,6 @@ export function PresentationPreviewDialog({
         const pdfjsLib = await import("pdfjs-dist");
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
-        setLoadingStatus("Downloading PDF...");
         // Fetch PDF with timeout - use simple arrayBuffer() for speed
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
@@ -97,7 +96,6 @@ export function PresentationPreviewDialog({
         const arrayBuffer = await response.arrayBuffer();
         if (isCancelled) return;
 
-        setLoadingStatus("Rendering pages...");
         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
         const numPages = pdf.numPages;
@@ -269,7 +267,7 @@ export function PresentationPreviewDialog({
         </div>
 
         {/* Main Preview Area */}
-        <div className="flex-1 overflow-hidden bg-[#F0F0F0] relative">
+        <div className="flex-1 overflow-hidden bg-[#F0F0F0] relative min-h-[400px]">
           {loading ? (
             <div className="flex flex-col items-center justify-center h-full gap-4">
               <div className="w-12 h-12 border-4 border-[#2251FF] border-t-transparent rounded-full animate-spin"></div>

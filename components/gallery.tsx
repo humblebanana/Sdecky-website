@@ -64,7 +64,7 @@ export function Gallery() {
   }, []);
 
   return (
-    <section id="gallery" className="w-full py-16 md:py-24 bg-[#051C2C]">
+    <section id="gallery" className="w-full py-16 md:py-24 bg-[#051C2C] min-h-[600px]">
       <div className="container px-4 md:px-8 lg:px-12 mx-auto max-w-7xl">
         {/* Section Header */}
         <motion.div
@@ -84,8 +84,20 @@ export function Gallery() {
         </motion.div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {items.slice(0, 6).map((item, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 min-h-[400px]">
+          {loading ? (
+            <div className="col-span-full flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-white/70">Loading presentations...</p>
+              </div>
+            </div>
+          ) : items.length === 0 ? (
+            <div className="col-span-full flex items-center justify-center py-20">
+              <p className="text-white/70 text-lg">No featured presentations yet.</p>
+            </div>
+          ) : (
+            items.slice(0, 6).map((item, index) => (
             <motion.article
               key={item.id}
               initial={{ opacity: 0, y: 60, scale: 0.96 }}
@@ -132,7 +144,7 @@ export function Gallery() {
                 </div>
               </div>
             </motion.article>
-          ))}
+          )))}
         </div>
 
         {/* View More Button */}
