@@ -14,7 +14,7 @@ export default function Home() {
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo Section */}
             <Link href="/" className="flex items-center">
-              <Image src="/sdecky_full_light_bg.png" alt="Sdecky" width={400} height={100} className="h-18 md:h-20 w-auto" priority />
+              <Image src="/sdecky_full_light_bg.png" alt="Sdecky" width={400} height={100} className="h-12 md:h-16 w-auto" priority />
             </Link>
 
             {/* Desktop Navigation Links */}

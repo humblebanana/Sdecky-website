@@ -62,7 +62,7 @@ export default function WaitlistPage() {
                 alt="Sdecky"
                 width={400}
                 height={100}
-                className="h-18 md:h-20 w-auto"
+                className="h-12 md:h-16 w-auto"
                 priority
               />
             </Link>
