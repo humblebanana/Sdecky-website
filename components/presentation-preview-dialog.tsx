@@ -233,39 +233,39 @@ export function PresentationPreviewDialog({
       />
 
       {/* Dialog */}
-      <div className="relative bg-white rounded-lg shadow-2xl flex flex-col w-[80vw] h-[80vh] max-w-6xl">
+      <div className="relative bg-white rounded-lg shadow-2xl flex flex-col w-full h-full md:w-[90vw] md:h-[90vh] lg:w-[80vw] lg:h-[80vh] md:max-w-6xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E0E0E0]">
-          <h2 className="text-xl md:text-2xl font-serif text-[#051C2C] truncate flex-1 mr-4">
+        <div className="flex items-center justify-between px-3 py-2 md:px-6 md:py-4 border-b border-[#E0E0E0]">
+          <h2 className="text-base md:text-xl lg:text-2xl font-serif text-[#051C2C] truncate flex-1 mr-2 md:mr-4">
             {title}
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             <button
               onClick={handleShareLink}
-              className="p-2 hover:bg-[#F0F0F0] rounded-sm transition-colors flex items-center gap-1.5"
+              className="p-2 md:p-2.5 hover:bg-[#F0F0F0] rounded-sm transition-colors flex items-center gap-1.5 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0"
               title="Copy link"
             >
               {copied ? (
-                <Check className="w-5 h-5 text-green-600" />
+                <Check className="w-5 h-5 md:w-5 md:h-5 text-green-600" />
               ) : (
-                <Share2 className="w-5 h-5 text-[#5A6780]" />
+                <Share2 className="w-5 h-5 md:w-5 md:h-5 text-[#5A6780]" />
               )}
-              <span className="hidden sm:inline text-sm text-[#5A6780]">
+              <span className="hidden md:inline text-sm text-[#5A6780]">
                 {copied ? "Copied!" : "Share"}
               </span>
             </button>
             <button
               onClick={() => router.push(`/presentations/${presentationId}`)}
-              className="p-2 hover:bg-[#F0F0F0] rounded-sm transition-colors"
+              className="p-2 md:p-2.5 hover:bg-[#F0F0F0] rounded-sm transition-colors min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0"
               title="Open full page"
             >
-              <Maximize2 className="w-5 h-5 text-[#5A6780]" />
+              <Maximize2 className="w-5 h-5 md:w-5 md:h-5 text-[#5A6780]" />
             </button>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-[#F0F0F0] rounded-sm transition-colors"
+              className="p-2 md:p-2.5 hover:bg-[#F0F0F0] rounded-sm transition-colors min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0"
             >
-              <X className="w-5 h-5 text-[#5A6780]" />
+              <X className="w-5 h-5 md:w-5 md:h-5 text-[#5A6780]" />
             </button>
           </div>
         </div>
@@ -280,7 +280,7 @@ export function PresentationPreviewDialog({
           ) : pageImages.length > 0 ? (
             <>
               {/* Current Page */}
-              <div className="flex items-center justify-center h-full p-8">
+              <div className="flex items-center justify-center h-full p-2 md:p-6 lg:p-8">
                 {pageImages[currentPage] ? (
                   <img
                     src={pageImages[currentPage]}
@@ -300,14 +300,14 @@ export function PresentationPreviewDialog({
                   <button
                     onClick={handlePrevious}
                     disabled={currentPage === 0 || isNavigating}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-3 md:p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[48px] min-h-[48px]"
                   >
                     <ChevronLeft className="w-6 h-6 text-[#051C2C]" />
                   </button>
                   <button
                     onClick={handleNext}
                     disabled={currentPage === pageImages.length - 1 || isNavigating}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-3 md:p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[48px] min-h-[48px]"
                   >
                     <ChevronRight className="w-6 h-6 text-[#051C2C]" />
                   </button>
@@ -345,8 +345,8 @@ export function PresentationPreviewDialog({
               </div>
             )}
 
-            <div className="p-4">
-              <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="p-2 md:p-4">
+              <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2">
                 {pageImages.map((img, index) => (
                   <button
                     key={index}
@@ -354,7 +354,7 @@ export function PresentationPreviewDialog({
                       thumbRefs.current[index] = el;
                     }}
                     onClick={() => setCurrentPage(index)}
-                    className={`flex-shrink-0 border-2 rounded-sm transition-all ${
+                    className={`flex-shrink-0 border-2 rounded-sm transition-all min-w-[48px] min-h-[48px] ${
                       currentPage === index
                         ? "border-[#2251FF] ring-2 ring-[#2251FF]/20"
                         : "border-[#E0E0E0] hover:border-[#051C2C]"
@@ -363,7 +363,7 @@ export function PresentationPreviewDialog({
                     <img
                       src={img}
                       alt={`Thumbnail ${index + 1}`}
-                      className="w-32 h-20 object-cover"
+                      className="w-20 h-12 md:w-32 md:h-20 object-cover"
                     />
                   </button>
                 ))}
