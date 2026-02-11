@@ -91,14 +91,18 @@ export function PresentationViewer({
         for (let pageNum = renderedImages.length + 1; pageNum <= pagesToRender; pageNum++) {
           if (isCancelled) return;
           const page = await pdf.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 2.5 });
+          // Use higher scale for crisp rendering on high-DPI screens
+        const pixelRatio = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+        const scale = Math.max(2.5, pixelRatio * 1.5);
+        const viewport = page.getViewport({ scale });
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
           if (!context) continue;
           canvas.width = viewport.width;
           canvas.height = viewport.height;
           await page.render({ canvasContext: context, viewport, canvas }).promise;
-          const imageData = canvas.toDataURL("image/jpeg", 0.95);
+          // Use PNG for lossless quality, or high-quality JPEG
+        const imageData = canvas.toDataURL("image/png");
           if (isCancelled) return;
           renderedImages.push(imageData);
           setPageImages([...renderedImages]);
@@ -192,14 +196,14 @@ export function PresentationViewer({
   return (
     <div className="h-screen bg-[#F0F0F0] flex flex-col overflow-hidden relative">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-white border-b border-[#E0E0E0] px-4 md:px-8 h-16 md:h-20 flex items-center justify-between shrink-0">
+      <header className="sticky top-0 z-20 bg-white border-b border-[#E0E0E0] px-3 sm:px-4 md:px-8 h-14 sm:h-16 md:h-20 flex items-center justify-between shrink-0">
         <Link href="/" className="flex items-center">
           <Image
             src="/sdecky_full_light_bg.png"
             alt="Sdecky"
             width={400}
             height={100}
-            className="h-12 md:h-16 w-auto"
+            className="h-10 sm:h-12 md:h-16 w-auto"
             priority
           />
         </Link>
@@ -235,7 +239,7 @@ export function PresentationViewer({
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden relative flex items-center justify-center p-4 md:p-8">
+      <div className="flex-1 overflow-hidden relative flex items-center justify-center p-2 sm:p-4 md:p-8">
         {loading ? (
           <p className="text-[#5A6780]">Loading presentation...</p>
         ) : error ? (
@@ -257,16 +261,18 @@ export function PresentationViewer({
                 <button
                   onClick={handlePrevious}
                   disabled={currentPage === 0 || isNavigating}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-4 sm:p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  aria-label="Previous page"
                 >
-                  <ChevronLeft className="w-6 h-6 text-[#051C2C]" />
+                  <ChevronLeft className="w-8 h-8 sm:w-6 sm:h-6 text-[#051C2C]" />
                 </button>
                 <button
                   onClick={handleNext}
                   disabled={currentPage === pageImages.length - 1 || isNavigating}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-4 sm:p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  aria-label="Next page"
                 >
-                  <ChevronRight className="w-6 h-6 text-[#051C2C]" />
+                  <ChevronRight className="w-8 h-8 sm:w-6 sm:h-6 text-[#051C2C]" />
                 </button>
               </>
             )}
@@ -292,7 +298,7 @@ export function PresentationViewer({
           )}
 
           <div className="p-4">
-            <div className="flex items-center gap-3 overflow-x-auto pb-2">
+            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 px-1">
               {pageImages.map((img, index) => (
                 <button
                   key={index}
@@ -300,7 +306,7 @@ export function PresentationViewer({
                     thumbRefs.current[index] = el;
                   }}
                   onClick={() => setCurrentPage(index)}
-                  className={`flex-shrink-0 border-2 rounded-sm transition-all ${
+                  className={`flex-shrink-0 border-2 rounded-sm transition-all touch-manipulation ${
                     currentPage === index
                       ? "border-[#2251FF] ring-2 ring-[#2251FF]/20"
                       : "border-[#E0E0E0] hover:border-[#051C2C]"
@@ -309,12 +315,12 @@ export function PresentationViewer({
                   <img
                     src={img}
                     alt={`Thumbnail ${index + 1}`}
-                    className="w-32 h-20 object-cover"
+                    className="w-24 h-16 sm:w-32 sm:h-20 object-cover"
                   />
                 </button>
               ))}
-              <span className="text-sm text-[#5A6780] shrink-0 pl-2">
-                Page {currentPage + 1} of {pageImages.length}
+              <span className="text-xs sm:text-sm text-[#5A6780] shrink-0 pl-2">
+                {currentPage + 1} / {pageImages.length}
               </span>
             </div>
           </div>
@@ -324,16 +330,16 @@ export function PresentationViewer({
       {/* "Made with Sdecky" floating badge - bottom right */}
       <Link
         href="/"
-        className="fixed bottom-6 right-6 flex items-center gap-3 bg-[#123146] text-white pl-3 pr-5 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 hover:bg-[#1a4461] transition-all duration-300 ease-out z-10 group"
+        className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 flex items-center gap-2 sm:gap-3 bg-[#123146] text-white pl-2 sm:pl-3 pr-3 sm:pr-5 py-2 sm:py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 hover:bg-[#1a4461] transition-all duration-300 ease-out z-10 group"
       >
         <Image
           src="/logo_icon_v2 (1).png"
           alt="Sdecky"
-          width={32}
-          height={32}
-          className="rounded-full group-hover:rotate-12 transition-transform duration-300"
+          width={28}
+          height={28}
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full group-hover:rotate-12 transition-transform duration-300"
         />
-        <span className="text-sm font-serif font-medium">Crafted with Sdecky</span>
+        <span className="text-xs sm:text-sm font-serif font-medium">Crafted with Sdecky</span>
       </Link>
     </div>
   );

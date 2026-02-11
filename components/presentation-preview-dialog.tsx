@@ -114,7 +114,10 @@ export function PresentationPreviewDialog({
           if (isCancelled) return;
 
           const page = await pdf.getPage(pageNum);
-          const viewport = page.getViewport({ scale: 2.5 });
+          // Use higher scale for crisp rendering on high-DPI screens
+          const pixelRatio = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+          const scale = Math.max(2.5, pixelRatio * 1.5);
+          const viewport = page.getViewport({ scale });
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
 
@@ -129,7 +132,8 @@ export function PresentationPreviewDialog({
             canvas: canvas,
           }).promise;
 
-          const imageData = canvas.toDataURL("image/jpeg", 0.95);
+          // Use PNG for lossless quality
+          const imageData = canvas.toDataURL("image/png");
 
           if (isCancelled) return;
 
