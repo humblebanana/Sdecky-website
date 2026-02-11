@@ -261,18 +261,18 @@ export function PresentationViewer({
                 <button
                   onClick={handlePrevious}
                   disabled={currentPage === 0 || isNavigating}
-                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-4 sm:p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                   aria-label="Previous page"
                 >
-                  <ChevronLeft className="w-8 h-8 sm:w-6 sm:h-6 text-[#051C2C]" />
+                  <ChevronLeft className="w-6 h-6 text-[#051C2C]" />
                 </button>
                 <button
                   onClick={handleNext}
                   disabled={currentPage === pageImages.length - 1 || isNavigating}
-                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-4 sm:p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-3 bg-white rounded-full shadow-lg hover:bg-[#F0F0F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                   aria-label="Next page"
                 >
-                  <ChevronRight className="w-8 h-8 sm:w-6 sm:h-6 text-[#051C2C]" />
+                  <ChevronRight className="w-6 h-6 text-[#051C2C]" />
                 </button>
               </>
             )}
