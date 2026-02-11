@@ -203,7 +203,7 @@ export function PresentationViewer({
             alt="Sdecky"
             width={400}
             height={100}
-            className="h-10 sm:h-12 md:h-16 w-auto"
+            className="h-12 md:h-16 w-auto"
             priority
           />
         </Link>
